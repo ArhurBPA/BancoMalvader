@@ -6,15 +6,49 @@ public class Funcionario extends Usuario {
     private String codigoFuncionario;
     private String cargo;
     private String senha;
+    private String nome;
+    private LocalDate dataNascimento;
+    private double salario;
 
-    public Funcionario(String codigoFuncionario, String cargo, String senha) {
+    public Funcionario(String codigoFuncionario, String cargo, String senha, String nome, LocalDate dataNascimento, double salario) {
         this.codigoFuncionario = codigoFuncionario;
         this.cargo = cargo;
         this.senha = senha;
+        this.nome = nome;
+        this.dataNascimento = dataNascimento;
+        this.salario = salario;
+    }
+
+    public Funcionario() {
+        
     }
 
     public String getCodigoFuncionario() {
         return codigoFuncionario;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public LocalDate getDataNascimento() {
+        return dataNascimento;
+    }
+
+    public void setDataNascimento(LocalDate dataNascimento) {
+        this.dataNascimento = dataNascimento;
+    }
+
+    public double getSalario() {
+        return salario;
+    }
+
+    public void setSalario(double salario) {
+        this.salario = salario;
     }
 
     public void setCodigoFuncionario(String codigoFuncionario) {
@@ -49,7 +83,7 @@ public class Funcionario extends Usuario {
 
     @Override
     public String consultarDados() {
-        return "Código: " + codigoFuncionario + ", Cargo: " + cargo;
+        return "Código: " + codigoFuncionario + ", Nome: " + nome + ", Data de Nascimento: " + dataNascimento + ", Cargo: " + cargo + ", Salário: " + salario;
     }
 
     public void abrirConta() {

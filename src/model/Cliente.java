@@ -13,6 +13,10 @@ public class Cliente extends Usuario implements OperacoesConta {
         this.senha = senha;
     }
 
+    public Cliente(String noUsuario, String nrCpfUsuario, LocalDate dtNascimento, String nrTelefone, Object o, String senha) {
+
+    }
+
     @Override
     public boolean login(String senha) {
         return this.senha.equals(senha);
@@ -50,5 +54,9 @@ public class Cliente extends Usuario implements OperacoesConta {
     @Override
     public double obterLimite() {
         throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    public String getSenha() {
+        return null;
     }
 }

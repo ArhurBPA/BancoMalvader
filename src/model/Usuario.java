@@ -22,6 +22,10 @@ public abstract class Usuario {
         this.endereco = endereco;
     }
 
+    public Usuario(int idUsuario, String noUsuario, String nrCpfUsuario, LocalDate dtNascimento, String nrTelefone, String senha, String tpUsuario) {
+
+    }
+
     // Getters
 
     public int getId() {
