@@ -4,9 +4,12 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ConexaoBanco {
 
+    private static final Logger LOGGER = Logger.getLogger(ConexaoBanco.class.getName());
     private static volatile Connection connection;
 
     private static final String BUNDLE_NAME = "config";
@@ -19,37 +22,36 @@ public class ConexaoBanco {
         return bundle.getString(key);
     }
 
-    public static Connection connect() {
+    public static Connection conectar() {
         if (connection == null) {
-            connection = establishConnection();
+            synchronized (ConexaoBanco.class) {
+                if (connection == null) {
+                    try {
+                        connection = DriverManager.getConnection(URL, USER, PASSWORD);
+                        LOGGER.log(Level.INFO, "Conexão estabelecida com sucesso.");
+                    } catch (SQLException e) {
+                        LOGGER.log(Level.SEVERE, "Erro ao conectar com o banco de dados: " + e.getMessage(), e);
+                        throw new RuntimeException("Falha ao conectar ao banco de dados", e);
+                    }
+                }
+            }
         }
         return connection;
     }
 
-    private static Connection establishConnection() {
-        try {
-            Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-            System.out.println("Connection established successfully!");
-            return conn;
-        } catch (SQLException e) {
-            System.err.println("Error establishing database connection: " + e.getMessage());
-            throw new RuntimeException("Failed to connect to database", e);
-        }
-    }
-
-    public static void disconnect() {
+    public static void desconectar() {
         if (connection != null) {
-            closeConnection();
-        }
-    }
-
-    private static void closeConnection() {
-        try {
-            connection.close();
-            connection = null;
-            System.out.println("Connection closed successfully!");
-        } catch (Exception e) {
-            System.err.println("Error closing the database connection: " + e.getMessage());
+            synchronized (ConexaoBanco.class) {
+                if (connection != null) {
+                    try {
+                        connection.close();
+                        connection = null;
+                        LOGGER.log(Level.INFO, "Conexão fechada com sucesso.");
+                    } catch (SQLException e) {
+                        LOGGER.log(Level.SEVERE, "Erro ao fechar a conexão com o banco de dados: " + e.getMessage(), e);
+                    }
+                }
+            }
         }
     }
 }

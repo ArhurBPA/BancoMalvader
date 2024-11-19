@@ -1,17 +1,22 @@
 package model;
 
 public class ContaPoupanca extends Conta {
-    private double taxaRendimento;
+    private double taxaRendimento; // taxa de rendimento
 
-    public ContaPoupanca() {
-        super();
-    }
+    // Construtor vazio
+    public ContaPoupanca() {}
 
-    public ContaPoupanca(int saldo, double taxaRendimento) {
-        super(saldo);
+    // Construtor completo
+    public ContaPoupanca(int numero, String agencia, double saldo, Cliente cliente, double taxaRendimento) {
+        super(numero, agencia, saldo, cliente, "POUPANCA");
         this.taxaRendimento = taxaRendimento;
     }
 
+    public double calcularRendimento() {
+        return getSaldo() * (taxaRendimento / 100);
+    }
+
+    // Getters e setters
     public double getTaxaRendimento() {
         return taxaRendimento;
     }
@@ -20,11 +25,12 @@ public class ContaPoupanca extends Conta {
         this.taxaRendimento = taxaRendimento;
     }
 
-    public double calcularRendimento() {
-        return getSaldo() * (taxaRendimento / 100);
-    }
-
-    public double getSaldo() {
-        return saldo;
+    @Override
+    public void exibirInformacoes() {
+        System.out.println("Conta Poupança - Número: " + getNumero());
+        System.out.println("Agência: " + getAgencia());
+        System.out.println("Saldo: R$ " + getSaldo());
+        System.out.println("Cliente: " + getCliente().getNome());
+        System.out.println("Taxa de Rendimento: " + taxaRendimento + "%");
     }
 }

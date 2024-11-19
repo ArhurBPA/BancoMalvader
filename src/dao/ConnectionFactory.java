@@ -1,74 +1,62 @@
 package dao;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
+import java.util.logging.Logger;
 
 public class ConnectionFactory {
+    private static final Logger LOGGER = Logger.getLogger(ConnectionFactory.class.getName());
+    private final String url;
+    private final String usuario;
+    private final String senha;
+    private static volatile ConnectionFactory instance;
+    private Connection connection;
 
-    private static String URL;
-    private static String USER;
-    private static String PASSWORD;
-    static Connection connection = null;
+    private ConnectionFactory() {
+        this.url = System.getenv("jdbc:mysql://localhost:3306/mydb");
+        this.usuario = System.getenv("root");
+        this.senha = System.getenv("fFLUZAO2004.");
+    }
 
-    // Método para obter a conexão com o banco de dados
+    public static ConnectionFactory getInstance() {
+        if (instance == null) {
+            synchronized (ConnectionFactory.class) {
+                if (instance == null) {
+                    instance = new ConnectionFactory();
+                }
+            }
+        }
+        return instance;
+    }
+
     public static Connection conectar() {
-        try {
-            if (connection == null || connection.isClosed()) {
-                loadDatabaseCredentials();
-                // Conectar ao banco de dados
-                connection = DriverManager.getConnection(URL, USER, PASSWORD);
-                System.out.println("Conexão estabelecida com sucesso!");
+        synchronized (ConnectionFactory.class) {
+            if (instance.connection == null) {
+                try {
+                    instance.connection = DriverManager.getConnection(instance.url, instance.usuario, instance.senha);
+                    LOGGER.info("Conexão estabelecida com sucesso.");
+                } catch (SQLException e) {
+                    LOGGER.severe("Erro ao conectar com o banco de dados: " + e.getMessage());
+                    throw new RuntimeException("Erro ao conectar com o banco de dados.", e);
+                }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("Erro ao conectar com o banco de dados.");
+            return instance.connection;
         }
-        return connection;
     }
 
-    // Método para fechar a conexão com o banco de dados
-    public static void desconectar() {
-        try {
-            if (connection != null && !connection.isClosed()) {
-                connection.close();
-                System.out.println("Conexão encerrada com sucesso.");
+    public void desconectar() {
+        synchronized (ConnectionFactory.class) {
+            if (connection != null) {
+                try {
+                    connection.close();
+                    connection = null;
+                    LOGGER.info("Conexão fechada com sucesso.");
+                } catch (SQLException e) {
+                    LOGGER.severe("Erro ao desconectar do banco de dados: " + e.getMessage());
+                    throw new RuntimeException("Erro ao desconectar do banco de dados.", e);
+                }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("Erro ao fechar a conexão com o banco de dados.");
         }
-    }
-
-    // Método para verificar se a conexão está ativa
-    public static boolean isConectado() {
-        try {
-            return connection != null && !connection.isClosed();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-// Método para carregar as credenciais do banco de dados de um arquivo de propriedades
-private static void loadDatabaseCredentials() {
-    Properties properties = new Properties();
-    try (InputStream input = new FileInputStream("db.properties")) {
-        properties.load(input);
-        URL = properties.getProperty("db.url");
-        USER = properties.getProperty("db.user");
-        PASSWORD = properties.getProperty("db.password");
-    } catch (IOException e) {
-        e.printStackTrace();
-        System.out.println("Erro ao carregar as credenciais do banco de dados.");
-    }
-}
-
-    public static Connection connect() {
-        return null;
     }
 }

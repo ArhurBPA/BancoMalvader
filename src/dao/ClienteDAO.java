@@ -1,134 +1,160 @@
 package dao;
 
-import dao.ConnectionFactory;
-import java.util.logging.Logger;
+import model.Cliente;
+import model.Endereco;
 
 import java.sql.*;
-
-import model.Cliente;
+import java.time.LocalDate;
 
 public class ClienteDAO {
-    private static final Logger LOGGER = Logger.getLogger(ClienteDAO.class.getName());
 
-    public void cadastrarCliente(Cliente cliente) {
-        String sqlUsuario = "INSERT INTO tb_usuario (no_usuario, nr_cpf_usuario, dt_nascimento, nr_telefone, senha, tp_usuario) VALUES (?, ?, ?, ?, ?, ?)";
-        String sqlCliente = "INSERT INTO tb_cliente (id_usuario) VALUES (?)";
-        Connection connection = null; // Declarar Connection aqui para ter acesso em qualquer parte do método
+    public static void criarCliente(Cliente cliente) {
+        String sql = "INSERT INTO TB_USUARIO (NO_USUARIO, NR_CPF_USUARIO, DT_NASCIMENTO, NR_TELEFONE, SENHA, TP_USUARIO) VALUES (?, ?, ?, ?, ?, ?)";
 
-        try {
-            connection = ConnectionFactory.connect(); // Obter a conexão
-            connection.setAutoCommit(false); // Inicia a transação
-
-            // Inserir na tabela TB_USUARIO
-            try (PreparedStatement stmtUsuario = connection.prepareStatement(sqlUsuario,
-                    Statement.RETURN_GENERATED_KEYS)) {
-                stmtUsuario.setString(1, cliente.getNome());
-                stmtUsuario.setString(2, cliente.getCpf());
-                stmtUsuario.setDate(3, Date.valueOf(cliente.getDataNascimento()));
-                stmtUsuario.setString(4, cliente.getTelefone());
-                stmtUsuario.setString(5, cliente.getSenha());
-                stmtUsuario.setString(6, "CLIENTE"); // Define o tipo de usuário como CLIENTE
-                stmtUsuario.executeUpdate();
-
-                // Obter o ID gerado para o usuário
-                ResultSet generatedKeys = stmtUsuario.getGeneratedKeys();
-                if (generatedKeys.next()) {
-                    cliente.setId(generatedKeys.getInt(1)); // Define o ID do cliente a partir do ID gerado para o
-                    // usuário
-                }
-            }
-
-            // Inserir na tabela TB_CLIENTE
-            try (PreparedStatement stmtCliente = connection.prepareStatement(sqlCliente)) {
-                stmtCliente.setInt(1, cliente.getId());
-                stmtCliente.executeUpdate();
-            }
-
-            connection.commit(); // Confirma a transação
-            LOGGER.info("Cliente cadastrado com sucesso!");
-
-        } catch (SQLException e) {
-            LOGGER.severe("Erro ao cadastrar cliente: " + e.getMessage());
-            if (connection != null) {
-                try {
-                    connection.rollback(); // Em caso de erro, desfaz a transação
-                } catch (SQLException rollbackEx) {
-                    LOGGER.severe("Erro ao desfazer transação: " + rollbackEx.getMessage());
-                }
-            }
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close(); // Garante que a conexão seja fechada, mesmo em caso de erro
-                } catch (SQLException e) {
-                    LOGGER.severe("Erro ao fechar conexão: " + e.getMessage());
-                }
-            }
-        }
-    }
-
-    // Método para buscar um cliente por ID
-    public Cliente buscarPorId(int id) {
-        String sql = "SELECT * FROM tb_cliente WHERE id_cliente = ?";
-        Cliente cliente = null;
-
-        try (Connection conn = ConnectionFactory.connect();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, id);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    cliente = new Cliente(
-                            rs.getString("NO_USUARIO"),
-                            rs.getString("NR_CPF_USUARIO"),
-                            rs.getDate("DT_NASCIMENTO").toLocalDate(),
-                            rs.getString("NR_TELEFONE"),
-                            null, // Endereço pode ser buscado de outra tabela se necessário
-                            rs.getString("SENHA"));
-                    cliente.setId(rs.getInt("id_cliente"));
-                }
-            }
-        } catch (SQLException e) {
-            LOGGER.severe("Erro ao buscar cliente: " + e.getMessage());
-        }
-        return cliente;
-    }
-
-    // Método para atualizar os dados de um cliente
-    public boolean atualizar(Cliente cliente) {
-        String sql = "UPDATE tb_cliente SET no_usuario = ?, nr_cpf_usuario = ?, dt_nascimento = ?, nr_telefone = ?, senha = ? WHERE id_cliente = ?";
-        boolean atualizado = false;
-
-        try (Connection conn = util.ConexaoBanco.connect();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = ConnectionFactory.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, cliente.getNome());
             stmt.setString(2, cliente.getCpf());
             stmt.setDate(3, Date.valueOf(cliente.getDataNascimento()));
             stmt.setString(4, cliente.getTelefone());
-            stmt.setString(5, cliente.getSenha());
-            stmt.setInt(6, cliente.getId());
+            stmt.setString(5, cliente.getSenha()); // Assuming Cliente class has getSenha() method for hashed password
+            stmt.setString(6, "CLIENTE"); // Define o tipo de usuário como "CLIENTE"
 
-            atualizado = stmt.executeUpdate() > 0;
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Falha ao criar o cliente, nenhuma linha afetada.");
+            }
+
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    int idUsuario = generatedKeys.getInt(1);
+                    cliente.setId(idUsuario);
+
+                    // Agora você pode usar o idUsuario para inserir na tabela TB_CLIENTE
+                    inserirNaTabelaCliente(cliente, conn);
+
+                    // E também inserir o endereço na tabela TB_ENDERECO
+                    inserirEndereco(cliente.getEndereco(), idUsuario, conn);
+                } else {
+                    throw new SQLException("Falha ao criar o cliente, não foi possível obter o ID.");
+                }
+            }
         } catch (SQLException e) {
-            LOGGER.severe("Erro ao atualizar cliente: " + e.getMessage());
+            System.err.println("Erro ao criar cliente: " + e.getMessage());
+            e.printStackTrace();
         }
-        return atualizado;
     }
 
-    // Método para deletar um cliente
-    public boolean deletar(int id) {
-        String sql = "DELETE FROM tb_cliente WHERE id_cliente = ?";
-        boolean deletado = false;
+    private static void inserirNaTabelaCliente(Cliente cliente, Connection conn) throws SQLException {
+        String sqlCliente = "INSERT INTO TB_CLIENTE (ID_USUARIO) VALUES (?)";
+        try (PreparedStatement stmtCliente = conn.prepareStatement(sqlCliente)) {
+            stmtCliente.setInt(1, cliente.getId());
+            stmtCliente.executeUpdate();
+        }
+    }
 
-        try (Connection conn = util.ConexaoBanco.connect();
+    private static void inserirEndereco(Endereco endereco, int idUsuario, Connection conn) throws SQLException {
+        String sqlEndereco = "INSERT INTO TB_ENDERECO (NR_CEP, NO_LOCAL, NR_CASA, NO_BAIRRO, NO_CIDADE, SG_ESTADO, ID_USUARIO) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement stmtEndereco = conn.prepareStatement(sqlEndereco)) {
+            stmtEndereco.setString(1, endereco.getCep());
+            stmtEndereco.setString(2, endereco.getLocal());
+            stmtEndereco.setInt(3, endereco.getNumeroCasa());
+            stmtEndereco.setString(4, endereco.getBairro());
+            stmtEndereco.setString(5, endereco.getCidade());
+            stmtEndereco.setString(6, endereco.getEstado());
+            stmtEndereco.setInt(7, idUsuario);
+            stmtEndereco.executeUpdate();
+        }
+    }
+
+    public static Cliente buscarClientePorCPF(String cpf) {
+        String sql = "SELECT * FROM TB_USUARIO u " +
+                "JOIN TB_CLIENTE c ON u.ID_USUARIO = c.ID_USUARIO " +
+                "JOIN TB_ENDERECO e ON u.ID_USUARIO = e.ID_USUARIO " +
+                "WHERE u.NR_CPF_USUARIO = ?";
+
+        try (Connection conn = ConnectionFactory.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, id);
-            deletado = stmt.executeUpdate() > 0;
+            stmt.setString(1, cpf);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    // Cria um novo objeto Cliente e define seus atributos
+                    Cliente cliente = new Cliente();
+                    cliente.setId(rs.getInt("ID_USUARIO"));
+                    cliente.setNome(rs.getString("NO_USUARIO"));
+                    cliente.setCpf(rs.getString("NR_CPF_USUARIO"));
+                    cliente.setDataNascimento(rs.getDate("DT_NASCIMENTO").toLocalDate());
+                    cliente.setTelefone(rs.getString("NR_TELEFONE"));
+                    cliente.setSenha(rs.getString("SENHA"));
+
+                    // Cria um novo objeto Endereco e define seus atributos
+                    Endereco endereco = new Endereco();
+                    endereco.setCep(rs.getString("NR_CEP"));
+                    endereco.setLocal(rs.getString("NO_LOCAL"));
+                    endereco.setNumeroCasa(rs.getInt("NR_CASA"));
+                    endereco.setBairro(rs.getString("NO_BAIRRO"));
+                    endereco.setCidade(rs.getString("NO_CIDADE"));
+                    endereco.setEstado(rs.getString("SG_ESTADO"));
+
+                    // Associa o endereço ao cliente
+                    cliente.setEndereco(endereco);
+
+                    return cliente;
+                }
+            }
         } catch (SQLException e) {
-            LOGGER.severe("Erro ao deletar cliente: " + e.getMessage());
+            System.err.println("Erro ao buscar cliente por CPF: " + e.getMessage());
+            e.printStackTrace();
         }
-        return deletado;
+
+        return null; // Cliente não encontrado
+    }
+
+    public static Cliente buscarClientePorId(int idCliente) {
+        String sql = "SELECT * FROM TB_USUARIO u " +
+                "JOIN TB_CLIENTE c ON u.ID_USUARIO = c.ID_USUARIO " +
+                "JOIN TB_ENDERECO e ON u.ID_USUARIO = e.ID_USUARIO " +
+                "WHERE u.ID_USUARIO = ?";
+
+        try (Connection conn = ConnectionFactory.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idCliente);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    // Cria um novo objeto Cliente e define seus atributos
+                    Cliente cliente = new Cliente();
+                    cliente.setId(rs.getInt("ID_USUARIO"));
+                    cliente.setNome(rs.getString("NO_USUARIO"));
+                    cliente.setCpf(rs.getString("NR_CPF_USUARIO"));
+                    cliente.setDataNascimento(rs.getDate("DT_NASCIMENTO").toLocalDate());
+                    cliente.setTelefone(rs.getString("NR_TELEFONE"));
+                    cliente.setSenha(rs.getString("SENHA"));
+
+                    // Cria um novo objeto Endereco e define seus atributos
+                    Endereco endereco = new Endereco();
+                    endereco.setCep(rs.getString("NR_CEP"));
+                    endereco.setLocal(rs.getString("NO_LOCAL"));
+                    endereco.setNumeroCasa(rs.getInt("NR_CASA"));
+                    endereco.setBairro(rs.getString("NO_BAIRRO"));
+                    endereco.setCidade(rs.getString("NO_CIDADE"));
+                    endereco.setEstado(rs.getString("SG_ESTADO"));
+
+                    // Associa o endereço ao cliente
+                    cliente.setEndereco(endereco);
+
+                    return cliente;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar cliente por ID: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return null; // Cliente não encontrado
     }
 }

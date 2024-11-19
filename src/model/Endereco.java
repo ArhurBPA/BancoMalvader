@@ -1,7 +1,5 @@
 package model;
 
-import java.util.Objects;
-
 public class Endereco {
     private String cep;
     private String local;
@@ -10,6 +8,10 @@ public class Endereco {
     private String cidade;
     private String estado;
 
+    // Construtor vazio
+    public Endereco() {}
+
+    // Construtor completo
     public Endereco(String cep, String local, int numeroCasa, String bairro, String cidade, String estado) {
         this.cep = cep;
         this.local = local;
@@ -19,6 +21,7 @@ public class Endereco {
         this.estado = estado;
     }
 
+    // Getters e Setters
     public String getCep() {
         return cep;
     }
@@ -65,24 +68,6 @@ public class Endereco {
 
     public void setEstado(String estado) {
         this.estado = estado;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Endereco endereco = (Endereco) o;
-        return numeroCasa == endereco.numeroCasa &&
-                Objects.equals(cep, endereco.cep) &&
-                Objects.equals(local, endereco.local) &&
-                Objects.equals(bairro, endereco.bairro) &&
-                Objects.equals(cidade, endereco.cidade) &&
-                Objects.equals(estado, endereco.estado);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(cep, local, numeroCasa, bairro, cidade, estado);
     }
 
     @Override

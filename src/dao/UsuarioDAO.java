@@ -1,64 +1,67 @@
 package dao;
 
+import model.Usuario;
+import model.Funcionario;
+import model.Cliente;
+
 import java.sql.*;
-import model.*;
+import java.util.logging.Logger;
 
-public class UsuarioDAO{
+public class UsuarioDAO {
+    private static final Logger LOGGER = Logger.getLogger(UsuarioDAO.class.getName());
 
-    private Connection connection;
+    public void save(Usuario usuario) {
+        String sql = "INSERT INTO tb_usuario (NO_USUARIO, NR_CPF_USUARIO, DT_NASCIMENTO, NR_TELEFONE, SENHA, TP_USUARIO) VALUES (?, ?, ?, ?, ?, ?)";
+        Connection conn = ConnectionFactory.getInstance().conectar();
 
-    public UsuarioDAO() {
-        connection = ConnectionFactory.conectar(); // Conexão com o banco de dados
-    }
+        try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, usuario.getNome());
+            stmt.setString(2, usuario.getCpf());
+            stmt.setDate(3, Date.valueOf(usuario.getDataNascimento()));
+            stmt.setString(4, usuario.getTelefone());
+            stmt.setString(5, usuario.getSenha());
+            stmt.setString(6, usuario.getTipoUsuario());
 
-    // Método para autenticar o usuário no banco de dados
-    public Usuario autenticarUsuario(String usuario, String senha, String tipoUsuario) {
-        String sql = "SELECT * FROM Usuario WHERE NO_USUARIO = ? AND SENHA = ? AND TP_USUARIO = ?";
-        ResultSet rs = null;
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, usuario); // Define o nome de usuário
-            stmt.setString(2, senha); // Define a senha
-            stmt.setString(3, tipoUsuario); // Define o tipo de usuário (Funcionario ou Cliente)
-
-            rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                // Se encontrar o usuário no banco de dados, cria o objeto Usuario
-                return new Usuario(
-                        rs.getInt("ID_USUARIO"),
-                        rs.getString("NO_USUARIO"),
-                        rs.getString("NR_CPF_USUARIO"),
-                        rs.getDate("DT_NASCIMENTO").toLocalDate(),
-                        rs.getString("NR_TELEFONE"),
-                        rs.getString("SENHA"),
-                        rs.getString("TP_USUARIO")) {
-                    @Override
-                    public boolean login(String senha1) {
-                        return false;
-                    }
-
-                    @Override
-                    public void logout() {
-
-                    }
-
-                    @Override
-                    public String consultarDados() {
-                        return "";
-                    }
-                };
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Falha ao salvar o usuário, nenhuma linha afetada.");
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
+
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    usuario.setId(generatedKeys.getInt(1));
+                    if (usuario instanceof Funcionario) {
+                        saveFuncionario((Funcionario) usuario, conn);
+                    } else if (usuario instanceof Cliente) {
+                        saveCliente((Cliente) usuario, conn);
+                    }
+                } else {
+                    throw new SQLException("Falha ao salvar o usuário, não foi possível obter o ID.");
                 }
             }
+        } catch (SQLException e) {
+            LOGGER.severe("Error while saving the user: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            ConnectionFactory.getInstance().desconectar();
         }
-        return null; // Se não encontrar o usuário
+    }
+
+    private void saveFuncionario(Funcionario funcionario, Connection conn) throws SQLException {
+        String sql = "INSERT INTO tb_funcionario (ID_USUARIO, CD_FUNCIONARIO, NO_CARGO) VALUES (?, ?, ?)";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, funcionario.getId());
+            stmt.setString(2, funcionario.getCodigoFuncionario());
+            stmt.setString(3, funcionario.getCargo());
+            stmt.executeUpdate();
+        }
+    }
+
+    private void saveCliente(Cliente cliente, Connection conn) throws SQLException {
+        String sql = "INSERT INTO tb_cliente (ID_USUARIO) VALUES (?)";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, cliente.getId());
+            stmt.executeUpdate();
+        }
     }
 }

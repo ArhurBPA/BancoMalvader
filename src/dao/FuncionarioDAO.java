@@ -1,159 +1,119 @@
 package dao;
 
+import model.Endereco;
 import model.Funcionario;
 
 import java.sql.*;
-
-import static dao.ConnectionFactory.connection;
-import dao.CustomDatabaseException;  // Assuming the exception class is in 'exception' package
+import java.time.LocalDate;
 
 public class FuncionarioDAO {
 
-    // Inserir funcionário
-    public void inserirFuncionario(Funcionario funcionario) throws CustomDatabaseException {
-        String sqlUsuario = "INSERT INTO TB_USUARIO (NO_USUARIO, NR_CPF_USUARIO, DT_NASCIMENTO, NR_TELEFONE, SENHA, TP_USUARIO) VALUES (?, ?, ?, ?, ?, ?)";
-        String sqlFuncionario = "INSERT INTO TB_FUNCIONARIO (CD_FUNCIONARIO, NO_CARGO, ID_USUARIO) VALUES (?, ?, ?)";
+    public static void criarFuncionario(Funcionario funcionario) {
+        String sql = "INSERT INTO TB_USUARIO (NO_USUARIO, NR_CPF_USUARIO, DT_NASCIMENTO, NR_TELEFONE, SENHA, TP_USUARIO) VALUES (?, ?, ?, ?, ?, ?)";
 
-        try (Connection connection = ConnectionFactory.conectar()) {
-            Connection connect = ConnectionFactory.conectar();
-            connect.setAutoCommit(false); // Transação para garantir consistência
+        try (Connection conn = ConnectionFactory.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            try (PreparedStatement stmtUsuario = connect.prepareStatement(sqlUsuario, Statement.RETURN_GENERATED_KEYS)) {
-                stmtUsuario.setString(1, funcionario.getNome());
-                stmtUsuario.setString(2, funcionario.getCpf());
-                stmtUsuario.setDate(3, Date.valueOf(funcionario.getDataNascimento()));
-                stmtUsuario.setString(4, funcionario.getTelefone());
-                stmtUsuario.setString(5, funcionario.getSenha());
-                stmtUsuario.setString(6, "FUNCIONARIO");
-                stmtUsuario.executeUpdate();
+            stmt.setString(1, funcionario.getNome());
+            stmt.setString(2, funcionario.getCpf());
+            stmt.setDate(3, Date.valueOf(funcionario.getDataNascimento()));
+            stmt.setString(4, funcionario.getTelefone());
+            stmt.setString(5, funcionario.getSenha()); // Assuming Funcionario class has getSenha() method for hashed password
+            stmt.setString(6, "FUNCIONARIO"); // Define o tipo de usuário como "FUNCIONARIO"
 
-                // Obter o ID gerado para o usuário
-                ResultSet generatedKeys = stmtUsuario.getGeneratedKeys();
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Falha ao criar o funcionário, nenhuma linha afetada.");
+            }
+
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    funcionario.setId(generatedKeys.getInt(1));
+                    int idUsuario = generatedKeys.getInt(1);
+                    funcionario.setId(idUsuario);
+
+                    // Agora você pode usar o idUsuario para inserir na tabela TB_FUNCIONARIO
+                    inserirNaTabelaFuncionario(funcionario, conn);
+
+                    // E também inserir o endereço na tabela TB_ENDERECO
+                    inserirEndereco(funcionario.getEndereco(), idUsuario, conn);
+                } else {
+                    throw new SQLException("Falha ao criar o funcionário, não foi possível obter o ID.");
                 }
             }
-
-            try (PreparedStatement stmtFuncionario = connect.prepareStatement(sqlFuncionario)) {
-                stmtFuncionario.setString(1, funcionario.getCodigoFuncionario());
-                stmtFuncionario.setString(2, funcionario.getCargo());
-                stmtFuncionario.setInt(3, funcionario.getId());
-                stmtFuncionario.executeUpdate();
-            }
-
-            connect.commit(); // Confirmar transação
-            // Log success message
-            // Logger.log("Funcionário inserido com sucesso!");
         } catch (SQLException e) {
-            try {
-                connection.rollback(); // Rollback em caso de erro
-            } catch (SQLException rollbackEx) {
-                throw new dao.CustomDatabaseException("Erro ao realizar rollback após falha na inserção de funcionário", rollbackEx);
-            }
-            throw new dao.CustomDatabaseException("Erro ao inserir funcionário no banco de dados", e);
+            System.err.println("Erro ao criar funcionário: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    // Consultar funcionário pelo código
-    public Funcionario consultarFuncionario(String codigoFuncionario) throws CustomDatabaseException {
-        String sql = "SELECT u.ID_USUARIO, u.NO_USUARIO, u.NR_CPF_USUARIO, u.DT_NASCIMENTO, u.NR_TELEFONE, " +
-                "f.CD_FUNCIONARIO, f.NO_CARGO, f.ID_FUNCIONARIO " +
-                "FROM TB_FUNCIONARIO f " +
-                "INNER JOIN TB_USUARIO u ON f.ID_USUARIO = u.ID_USUARIO " +
+    private static void inserirNaTabelaFuncionario(Funcionario funcionario, Connection conn) throws SQLException {
+        String sqlFuncionario = "INSERT INTO TB_FUNCIONARIO (ID_USUARIO, CD_FUNCIONARIO, NO_CARGO) VALUES (?, ?, ?)";
+        try (PreparedStatement stmtFuncionario = conn.prepareStatement(sqlFuncionario)) {
+            stmtFuncionario.setInt(1, funcionario.getId());
+            stmtFuncionario.setString(2, funcionario.getCodigoFuncionario());
+            stmtFuncionario.setString(3, funcionario.getCargo());
+            stmtFuncionario.executeUpdate();
+        }
+    }
+
+    private static void inserirEndereco(Endereco endereco, int idUsuario, Connection conn) throws SQLException {
+        String sqlEndereco = "INSERT INTO TB_ENDERECO (NR_CEP, NO_LOCAL, NR_CASA, NO_BAIRRO, NO_CIDADE, SG_ESTADO, ID_USUARIO) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement stmtEndereco = conn.prepareStatement(sqlEndereco)) {
+            stmtEndereco.setString(1, endereco.getCep());
+            stmtEndereco.setString(2, endereco.getLocal());
+            stmtEndereco.setInt(3, endereco.getNumeroCasa());
+            stmtEndereco.setString(4, endereco.getBairro());
+            stmtEndereco.setString(5, endereco.getCidade());
+            stmtEndereco.setString(6, endereco.getEstado());
+            stmtEndereco.setInt(7, idUsuario);
+            stmtEndereco.executeUpdate();
+        }
+    }
+
+    public static Funcionario buscarFuncionarioPorCodigo(String codigoFuncionario) {
+        String sql = "SELECT * FROM TB_USUARIO u " +
+                "JOIN TB_FUNCIONARIO f ON u.ID_USUARIO = f.ID_USUARIO " +
+                "JOIN TB_ENDERECO e ON u.ID_USUARIO = e.ID_USUARIO " +
                 "WHERE f.CD_FUNCIONARIO = ?";
 
-        try (Connection connection = ConnectionFactory.conectar();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (Connection conn = ConnectionFactory.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            statement.setString(1, codigoFuncionario);
-            ResultSet resultSet = statement.executeQuery();
+            stmt.setString(1, codigoFuncionario);
 
-            if (resultSet.next()) {
-                Funcionario funcionario = new Funcionario();
-                funcionario.setId(resultSet.getInt("ID_USUARIO"));
-                funcionario.setNome(resultSet.getString("NO_USUARIO"));
-                funcionario.setCpf(resultSet.getString("NR_CPF_USUARIO"));
-                funcionario.setDataNascimento(resultSet.getDate("DT_NASCIMENTO").toLocalDate());
-                funcionario.setTelefone(resultSet.getString("NR_TELEFONE"));
-                funcionario.setCodigoFuncionario(resultSet.getString("CD_FUNCIONARIO"));
-                funcionario.setCargo(resultSet.getString("NO_CARGO"));
-                return funcionario;
-            }
-        } catch (SQLException e) {
-            throw new dao.CustomDatabaseException("Erro ao consultar funcionário", e);
-        }
-        return null;
-    }
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    // Cria um novo objeto Funcionario e define seus atributos
+                    Funcionario funcionario = new Funcionario();
+                    funcionario.setId(rs.getInt("ID_USUARIO"));
+                    funcionario.setNome(rs.getString("NO_USUARIO"));
+                    funcionario.setCpf(rs.getString("NR_CPF_USUARIO"));
+                    funcionario.setDataNascimento(rs.getDate("DT_NASCIMENTO").toLocalDate());
+                    funcionario.setTelefone(rs.getString("NR_TELEFONE"));
+                    funcionario.setSenha(rs.getString("SENHA"));
+                    funcionario.setCodigoFuncionario(rs.getString("CD_FUNCIONARIO"));
+                    funcionario.setCargo(rs.getString("NO_CARGO"));
 
-    // Atualizar dados de um funcionário
-    public void atualizarFuncionario(Funcionario funcionario) throws CustomDatabaseException {
-        String sqlUsuario = "UPDATE TB_USUARIO SET NO_USUARIO = ?, NR_CPF_USUARIO = ?, DT_NASCIMENTO = ?, NR_TELEFONE = ? WHERE ID_USUARIO = ?";
-        String sqlFuncionario = "UPDATE TB_FUNCIONARIO SET NO_CARGO = ? WHERE CD_FUNCIONARIO = ?";
+                    // Cria um novo objeto Endereco e define seus atributos
+                    Endereco endereco = new Endereco();
+                    endereco.setCep(rs.getString("NR_CEP"));
+                    endereco.setLocal(rs.getString("NO_LOCAL"));
+                    endereco.setNumeroCasa(rs.getInt("NR_CASA"));
+                    endereco.setBairro(rs.getString("NO_BAIRRO"));
+                    endereco.setCidade(rs.getString("NO_CIDADE"));
+                    endereco.setEstado(rs.getString("SG_ESTADO"));
 
-        try (Connection connection = ConnectionFactory.conectar()) {
-            connection.setAutoCommit(false);
+                    // Associa o endereço ao funcionário
+                    funcionario.setEndereco(endereco);
 
-            try (PreparedStatement stmtUsuario = connection.prepareStatement(sqlUsuario)) {
-                stmtUsuario.setString(1, funcionario.getNome());
-                stmtUsuario.setString(2, funcionario.getCpf());
-                stmtUsuario.setDate(3, Date.valueOf(funcionario.getDataNascimento()));
-                stmtUsuario.setString(4, funcionario.getTelefone());
-                stmtUsuario.setInt(5, funcionario.getId());
-                stmtUsuario.executeUpdate();
-            }
-
-            try (PreparedStatement stmtFuncionario = connection.prepareStatement(sqlFuncionario)) {
-                stmtFuncionario.setString(1, funcionario.getCargo());
-                stmtFuncionario.setString(2, funcionario.getCodigoFuncionario());
-                stmtFuncionario.executeUpdate();
-            }
-
-            connection.commit();
-            // Log success message
-            // Logger.log("Funcionário atualizado com sucesso!");
-        } catch (SQLException e) {
-            try {
-                connection.rollback(); // Rollback em caso de erro
-            } catch (SQLException rollbackEx) {
-                throw new dao.CustomDatabaseException("Erro ao realizar rollback após falha na atualização de funcionário", rollbackEx);
-            }
-            throw new dao.CustomDatabaseException("Erro ao atualizar funcionário no banco de dados", e);
-        }
-    }
-
-    // Excluir funcionário
-    public void excluirFuncionario(String codigoFuncionario) throws CustomDatabaseException {
-        String sqlFuncionario = "DELETE FROM TB_FUNCIONARIO WHERE CD_FUNCIONARIO = ?";
-        String sqlUsuario = "DELETE FROM TB_USUARIO WHERE ID_USUARIO = ?";
-
-        try (Connection connection = ConnectionFactory.conectar()) {
-            connection.setAutoCommit(false);
-
-            Funcionario funcionario = consultarFuncionario(codigoFuncionario);
-            if (funcionario != null) {
-                int idUsuario = funcionario.getId();
-
-                try (PreparedStatement stmtFuncionario = connection.prepareStatement(sqlFuncionario)) {
-                    stmtFuncionario.setString(1, codigoFuncionario);
-                    stmtFuncionario.executeUpdate();
+                    return funcionario;
                 }
-
-                try (PreparedStatement stmtUsuario = connection.prepareStatement(sqlUsuario)) {
-                    stmtUsuario.setInt(1, idUsuario);
-                    stmtUsuario.executeUpdate();
-                }
-
-                connection.commit();
-                // Log success message
-                // Logger.log("Funcionário excluído com sucesso!");
             }
         } catch (SQLException e) {
-            try {
-                connection.rollback(); // Rollback em caso de erro
-            } catch (SQLException rollbackEx) {
-                throw new dao.CustomDatabaseException("Erro ao realizar rollback após falha na exclusão de funcionário", rollbackEx);
-            }
-            throw new dao.CustomDatabaseException("Erro ao excluir funcionário no banco de dados", e);
+            System.err.println("Erro ao buscar funcionário por código: " + e.getMessage());
+            e.printStackTrace();
         }
+
+        return null; // Funcionário não encontrado
     }
 }
