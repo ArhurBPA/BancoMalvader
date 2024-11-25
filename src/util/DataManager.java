@@ -12,10 +12,10 @@ public class DataManager {
     public static boolean gravarDadosEmArquivo(String caminho, String dados) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(caminho, true))) {
             writer.write(dados);
-            writer.newLine();
+            writer.newLine(); // Adiciona uma nova linha após os dados
             return true;
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Erro ao gravar dados em arquivo: " + e.getMessage(), e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -29,7 +29,7 @@ public class DataManager {
                 dados.add(linha);
             }
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Erro ao ler dados de arquivo: " + e.getMessage(), e);
+            e.printStackTrace();
         }
         return dados;
     }
@@ -38,12 +38,24 @@ public class DataManager {
     public static boolean sobrescreverDadosEmArquivo(String caminho, String dados) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(caminho))) {
             writer.write(dados);
-            writer.newLine();
+            writer.newLine(); // Adiciona uma nova linha após os dados
             return true;
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Erro ao sobrescrever dados em arquivo: " + e.getMessage(), e);
+            e.printStackTrace();
             return false;
         }
+    }
+
+    // Método para verificar se um arquivo existe
+    public static boolean verificarArquivoExiste(String caminho) {
+        File file = new File(caminho);
+        return file.exists();
+    }
+
+    // Método para excluir um arquivo
+    public static boolean excluirArquivo(String caminho) {
+        File file = new File(caminho);
+        return file.delete();
     }
 
     // Método para salvar a lista de contas em um arquivo binário
@@ -51,7 +63,7 @@ public class DataManager {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
             oos.writeObject(contas);
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Erro ao salvar contas em arquivo: " + e.getMessage(), e);
+            e.printStackTrace();
         }
     }
 
@@ -61,7 +73,7 @@ public class DataManager {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename))) {
             return (List<Conta>) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            LOGGER.log(Level.SEVERE, "Erro ao carregar contas de arquivo: " + e.getMessage(), e);
+            e.printStackTrace();
             return null;
         }
     }
@@ -71,7 +83,7 @@ public class DataManager {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
             oos.writeObject(funcionarios);
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Erro ao salvar funcionários em arquivo: " + e.getMessage(), e);
+            e.printStackTrace();
         }
     }
 
@@ -81,7 +93,7 @@ public class DataManager {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename))) {
             return (List<Funcionario>) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            LOGGER.log(Level.SEVERE, "Erro ao carregar funcionários de arquivo: " + e.getMessage(), e);
+            e.printStackTrace();
             return null;
         }
     }

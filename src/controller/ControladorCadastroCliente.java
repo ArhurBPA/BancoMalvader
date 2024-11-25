@@ -3,6 +3,7 @@ package controller;
 import dao.ClienteDAO;
 import model.Cliente;
 import model.Endereco;
+import view.CadastroClienteView;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

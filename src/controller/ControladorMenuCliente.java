@@ -4,6 +4,7 @@ import dao.BancoDAO;
 
 import model.Cliente;
 import model.Transacao;
+import view.MenuClienteView;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -12,8 +13,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class ControladorMenuCliente implements ActionListener {
-    private final MenuClienteView menuView;
-    private final BancoDAO bancoDAO;
+    private MenuClienteView menuView = null;
+    private BancoDAO bancoDAO = null;
 
     public ControladorMenuCliente(MenuClienteView menuView, Cliente cliente) throws SQLException {
         this.menuView = menuView;
@@ -82,4 +83,29 @@ public class ControladorMenuCliente implements ActionListener {
         } else if (e.getSource() == menuView.consultarExtratoButton) {
             try {
                 List<Transacao> transacoes = bancoDAO.obterTransacoes();
-                StringBuilder
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        else if (e.getSource() == menuView.consultarExtratoButton) {
+        try {
+            List<Transacao> transacoes = bancoDAO.obterTransacoes();
+
+            // Formata as transações para exibição
+            StringBuilder extrato = new StringBuilder();
+            extrato.append("Extrato Bancário:\n");
+            for (Transacao transacao : transacoes) {
+                extrato.append("Tipo: ").append(transacao.getTipoTransacao()).append("\n");
+                extrato.append("Valor: R$ ").append(transacao.getValorTransacao()).append("\n");
+                extrato.append("Data e Hora: ").append(transacao.getDataHoraTransacao()).append("\n");
+                extrato.append("------------------------\n");
+            }
+
+            JOptionPane.showMessageDialog(menuView, extrato.toString(), "Extrato", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(menuView, "Erro ao consultar extrato: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    }
+}

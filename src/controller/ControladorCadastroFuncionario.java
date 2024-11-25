@@ -3,6 +3,7 @@ package controller;
 import dao.FuncionarioDAO;
 import model.Endereco;
 import model.Funcionario;
+import view.CadastroFuncionarioView;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

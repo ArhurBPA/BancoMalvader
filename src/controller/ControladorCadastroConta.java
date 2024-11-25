@@ -6,6 +6,7 @@ import model.Cliente;
 import model.Conta;
 import model.ContaCorrente;
 import model.ContaPoupanca;
+import view.CadastroContaView;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

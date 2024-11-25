@@ -4,6 +4,9 @@ import dao.ClienteDAO;
 import dao.FuncionarioDAO;
 import model.Cliente;
 import model.Funcionario;
+import view.LoginView;
+import view.MenuClienteView;
+import view.MenuFuncionarioView;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

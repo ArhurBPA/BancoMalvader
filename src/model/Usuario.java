@@ -117,11 +117,12 @@ public abstract class Usuario {
         this.tipoUsuario = tipoUsuario;
     }
 
-    public String getSenhaHash() {
+    public String getSenha() {
         return senhaHash;
     }
 
     public void setSenha(String senha) {
         this.senhaHash = gerarHash(senha);
     }
+
 }
