@@ -4,12 +4,12 @@ import java.time.LocalDate;
 
 public abstract class Usuario {
 
-    private int id;
-    private String nome;
-    private String cpf;
+    private final int id;
+    private final String nome;
+    private final String cpf;
     private LocalDate dataNascimento;
-    private String telefone;
-    private boolean validado;
+    private final String telefone;
+    private final boolean validado;
 
     public Usuario(int id, String nome, String cpf, String telefone, boolean validado) {
         this.id = id;

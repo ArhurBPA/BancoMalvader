@@ -2,9 +2,9 @@ package models;
 
 public class Transacao {
     private final int idTransacao;
-    private int idConta;
+    private final int idConta;
     private final String tipoTransacao;
-    private double valor;
+    private final double valor;
     private final String dataTransacao;
 
     // construtor

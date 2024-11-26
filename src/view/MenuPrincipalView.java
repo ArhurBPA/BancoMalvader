@@ -8,11 +8,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class MenuPrincipalView extends JFrame {
-    private ControllerUsuario controller;
 
     public MenuPrincipalView(ControllerUsuario controller) {
         super("Banco Malvader");
-        this.controller = controller;
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
         Font primaryFont = new Font("SansSerif", Font.BOLD, 30);

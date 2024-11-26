@@ -59,6 +59,10 @@ public class ControllerUsuario {
             System.exit(0);
         }
     }
+
+    public boolean verificarSenha(String usuario, String s) {
+        return false;
+    }
 }
 //    public MenuPrincipalView getMainView() {
 //        return mainView;

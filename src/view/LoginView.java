@@ -42,10 +42,14 @@ public class LoginView extends JFrame {
 
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            LoginView frame = new LoginView();
-            frame.setVisible(true);
-        });
+
+    public static class Main {
+        public static void main(String[] args) {
+            SwingUtilities.invokeLater(() -> {
+                LoginView frame = new LoginView();
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Ensuring the application exits when the window is closed.
+                frame.setVisible(true);
+            });
+        }
     }
 }

@@ -2,10 +2,10 @@ package models;
 
 public abstract class Conta {
 
-    private int numero;
-    private String agencia;
-    private double saldo;
-    private Cliente cliente;
+    private final int numero;
+    private final String agencia;
+    private final double saldo;
+    private final Cliente cliente;
 
     public Conta(int numero, String agencia, double saldo, Cliente cliente) {
         this.numero = numero;

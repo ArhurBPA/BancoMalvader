@@ -188,4 +188,7 @@ public class CadastroUsuarioView {
     public static void main(String[] args) {
         new CadastroUsuarioView();
     }
+
+    public void setVisible(boolean b) {
+    }
 }

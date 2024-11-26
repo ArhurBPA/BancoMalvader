@@ -89,10 +89,10 @@ public class UsuarioConta {
     }
 
     public static class Conta {
-        private String numeroConta;
-        private String agencia;
-        private double saldo;
-        private String tipoConta;
+        private final String numeroConta;
+        private final String agencia;
+        private final double saldo;
+        private final String tipoConta;
 
         private int idConta;
 

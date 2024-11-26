@@ -5,8 +5,8 @@ import java.util.List;
 
 public class GerarRelatorio {
 
-    private List<UsuarioConta.Conta> contas;
-    private List<Transacao> transacoes;
+    private final List<UsuarioConta.Conta> contas;
+    private final List<Transacao> transacoes;
 
     public GerarRelatorio() {
         this.contas = new ArrayList<>();

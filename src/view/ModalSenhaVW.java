@@ -6,15 +6,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 
 public class ModalSenhaVW {
-    private JDialog hashSenha;
+    private final JDialog hashSenha;
 
     public ModalSenhaVW(ControllerUsuario controller, String tipoUsuario) {
         hashSenha = new JDialog((Frame) null, "Autenticação - " + tipoUsuario, true);
-        hashSenha.setSize(400, 200); // Ajusta a altura para caber o novo botão
+        hashSenha.setSize(400, 200);
         hashSenha.setLayout(new GridLayout(4, 2, 10, 10));
-
 
         JLabel labelSenha = new JLabel("Digite sua senha:");
         JPasswordField campoSenha = new JPasswordField(15);
@@ -28,7 +28,15 @@ public class ModalSenhaVW {
             public void actionPerformed(ActionEvent e) {
                 char[] senha = campoSenha.getPassword();
                 String email = campoEmail.getText();
-                controller.verificarSenha(tipoUsuario, email, new String(senha), ModalSenhaVW.this);
+
+                // Verificar campos vazios
+                if (email.isEmpty() || senha.length == 0) {
+                    JOptionPane.showMessageDialog(null, "Email e senha são obrigatórios.", "Erro", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                controller.verificarSenha(tipoUsuario, email, Arrays.toString(senha), ModalSenhaVW.this);
+                Arrays.fill(senha, ' '); // Limpar array de senha
             }
         });
 
@@ -36,7 +44,8 @@ public class ModalSenhaVW {
             @Override
             public void actionPerformed(ActionEvent e) {
                 hashSenha.dispose();
-                new CadastroUsuarioView();
+                CadastroUsuarioView cadastroView = new CadastroUsuarioView();
+                cadastroView.setVisible(true);
             }
         });
 
