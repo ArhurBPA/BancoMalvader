@@ -10,6 +10,8 @@ O projeto Banco Malvader é uma aplicação de gerenciamento bancário que permi
 
 # Diagramas
 ![Diagrama de Sequencia](/diagramas/sequencia.jpeg "Diagrama de Sequencia")
+![DiagramaClasseMalavader](https://github.com/user-attachments/assets/6297a2db-a1d2-4d15-ba0d-8c430f5d2856)
+
   
 # Estrutura do Projeto
 A estrutura do projeto é organizada da seguinte forma:
