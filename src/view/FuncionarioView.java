@@ -1,27 +1,25 @@
 package view;
 
-import controller.ControllerUsuario;
+import controllers.RelatorioController;
+import controllers.UsuarioController;
 import dao.FuncionarioDAO;
-import models.Cliente;
-import models.ContaCliente;
-import models.GerarRelatorio;
-import models.UsuarioConta;
+import models.*;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class MenuFuncionarioView extends JFrame {
+public class FuncionarioView extends JFrame {
 
-    private final JLabel noTitulo;
-    private final JButton botaoX;
-    private final JButton botaoY;
-    private final JButton botaoZ;
-    private final JButton botao1;
-    private final JButton botao2;
-    private final JButton botao3;
-    private final JButton botaoSair;
+    private final JLabel tituloLabel;
+    private final JButton aberturaButton;
+    private final JButton encerramentoButton;
+    private final JButton consultaButton;
+    private final JButton alteracaoButton;
+    private final JButton cadastroButton;
+    private final JButton relatorioButton;
+    private final JButton sairButton;
 
-    public MenuFuncionarioView(Cliente usuario) {
+    public FuncionarioView(Cliente usuario) {
         super("Bem vindo " + usuario.getNome());
 
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS)); // layout da tela
@@ -29,86 +27,91 @@ public class MenuFuncionarioView extends JFrame {
         Font primariaFont = new Font("SansSerif", Font.BOLD, 30); // fonte
         Font secundariaFont = new Font("SansSerif", Font.BOLD, 15);
 
-        noTitulo = new JLabel("Area do Funcionario");
-        noTitulo.setFont(primariaFont);
-        noTitulo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        // label de titulo
+        tituloLabel = new JLabel("Area do Funcionario");
+        tituloLabel.setFont(primariaFont); // setar fonte
+        tituloLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        botaoX = new JButton("Abrir Conta");
-        botaoX.setFont(secundariaFont);
-        botaoX.setPreferredSize(new Dimension(200, 50));
-        botaoX.setMaximumSize(new Dimension(200, 50));
-        botaoX.setAlignmentX(Component.CENTER_ALIGNMENT);
-        botaoX.addActionListener(e -> abrirConta());
+        // botoes
+        aberturaButton = new JButton("Abrir Conta");
+        aberturaButton.setFont(secundariaFont);
+        aberturaButton.setPreferredSize(new Dimension(200, 50));
+        aberturaButton.setMaximumSize(new Dimension(200, 50));
+        aberturaButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        aberturaButton.addActionListener(e -> abrirConta());
 
-        botaoY = new JButton("Encerrar Conta");
-        botaoY.setFont(secundariaFont);
-        botaoY.setPreferredSize(new Dimension(200, 50));
-        botaoY.setMaximumSize(new Dimension(200, 50));
-        botaoY.setAlignmentX(Component.CENTER_ALIGNMENT);
-        botaoY.addActionListener(e -> encerrarConta());
+        encerramentoButton = new JButton("Encerrar Conta");
+        encerramentoButton.setFont(secundariaFont);
+        encerramentoButton.setPreferredSize(new Dimension(200, 50));
+        encerramentoButton.setMaximumSize(new Dimension(200, 50));
+        encerramentoButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        encerramentoButton.addActionListener(e -> encerrarConta());
 
-        botaoZ = new JButton("Consultar Dados");
-        botaoZ.setFont(secundariaFont);
-        botaoZ.setPreferredSize(new Dimension(200, 50));
-        botaoZ.setMaximumSize(new Dimension(200, 50));
-        botaoZ.setAlignmentX(Component.CENTER_ALIGNMENT);
-        botaoZ.addActionListener(e -> consultarDados());
+        consultaButton = new JButton("Consultar Dados");
+        consultaButton.setFont(secundariaFont);
+        consultaButton.setPreferredSize(new Dimension(200, 50));
+        consultaButton.setMaximumSize(new Dimension(200, 50));
+        consultaButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        consultaButton.addActionListener(e -> consultarDados());
 
-        botao1 = new JButton("Alterar Dados");
-        botao1.setFont(secundariaFont);
-        botao1.setPreferredSize(new Dimension(200, 50));
-        botao1.setMaximumSize(new Dimension(200, 50));
-        botao1.setAlignmentX(Component.CENTER_ALIGNMENT);
-        botao1.addActionListener(e -> alterarDados());
+        alteracaoButton = new JButton("Alterar Dados");
+        alteracaoButton.setFont(secundariaFont);
+        alteracaoButton.setPreferredSize(new Dimension(200, 50));
+        alteracaoButton.setMaximumSize(new Dimension(200, 50));
+        alteracaoButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        alteracaoButton.addActionListener(e -> alterarDados());
 
-        botao2 = new JButton("Cadastrar Funcionario");
-        botao2.setFont(secundariaFont);
-        botao2.setPreferredSize(new Dimension(200, 50));
-        botao2.setMaximumSize(new Dimension(200, 50));
-        botao2.setAlignmentX(Component.CENTER_ALIGNMENT);
-        botao2.addActionListener(e -> cadastrarFuncionario());
+        cadastroButton = new JButton("Cadastrar Funcionario");
+        cadastroButton.setFont(secundariaFont);
+        cadastroButton.setPreferredSize(new Dimension(200, 50));
+        cadastroButton.setMaximumSize(new Dimension(200, 50));
+        cadastroButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        cadastroButton.addActionListener(e -> cadastrarFuncionario());
 
-        botao3 = new JButton("Gerar Relatório");
-        botao3.setFont(secundariaFont);
-        botao3.setPreferredSize(new Dimension(200, 50));
-        botao3.setMaximumSize(new Dimension(200, 50));
-        botao3.setAlignmentX(Component.CENTER_ALIGNMENT);
-        botao3.addActionListener(e -> gerarRelatorio());
+        relatorioButton = new JButton("Gerar Relatório");
+        relatorioButton.setFont(secundariaFont);
+        relatorioButton.setPreferredSize(new Dimension(200, 50));
+        relatorioButton.setMaximumSize(new Dimension(200, 50));
+        relatorioButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        relatorioButton.addActionListener(e -> gerarRelatorio());
 
-        botaoSair = new JButton("Sair");
-        botaoSair.setFont(secundariaFont);
-        botaoSair.setPreferredSize(new Dimension(200, 50));
-        botaoSair.setMaximumSize(new Dimension(200, 50));
-        botaoSair.setAlignmentX(Component.CENTER_ALIGNMENT);
+        sairButton = new JButton("Sair");
+        sairButton.setFont(secundariaFont);
+        sairButton.setPreferredSize(new Dimension(200, 50));
+        sairButton.setMaximumSize(new Dimension(200, 50));
+        sairButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        botaoSair.addActionListener(e -> {
-            dispose();
-            MenuPrincipalView menuPrincipalView = new MenuPrincipalView(new ControllerUsuario());
-            menuPrincipalView.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            menuPrincipalView.setSize(500, 500);
-            menuPrincipalView.setVisible(true);
-            menuPrincipalView.setLocationRelativeTo(null);
+        sairButton.addActionListener(e -> {
+            dispose(); // fecha a TelaCliente
+            // volta para a TelaInicial
+            MainView mainView = new MainView(new UsuarioController());
+            mainView.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            mainView.setSize(500, 500);
+            mainView.setVisible(true);
+            mainView.setLocationRelativeTo(null);
         });
 
+        // adicionar elementos
         add(Box.createVerticalStrut(20));
-        add(noTitulo);
+        add(tituloLabel);
         add(Box.createVerticalStrut(20));
-        add(botaoX);
+        add(aberturaButton);
         add(Box.createVerticalStrut(20));
-        add(botaoY);
+        add(encerramentoButton);
         add(Box.createVerticalStrut(20));
-        add(botaoZ);
+        add(consultaButton);
         add(Box.createVerticalStrut(20));
-        add(botao1);
+        add(alteracaoButton);
         add(Box.createVerticalStrut(20));
-        add(botao2);
+        add(cadastroButton);
         add(Box.createVerticalStrut(20));
-        add(botao3);
+        add(relatorioButton);
         add(Box.createVerticalStrut(20));
-        add(botaoSair);
+        add(sairButton);
         add(Box.createVerticalStrut(20));
     }
 
+    // eventos dos botoes
     private void abrirConta() {
         String[] tiposConta = {"Poupança", "Corrente"};
         String tipoConta = (String) JOptionPane.showInputDialog(this, "Selecione o tipo de conta:", "Abertura de Conta",
@@ -193,6 +196,7 @@ public class MenuFuncionarioView extends JFrame {
         }
     }
 
+    // metodo para exibir o pop up para encerrar conta
     private void encerrarConta() {
         JPanel panel = new JPanel(new GridLayout(0, 2, 10, 10));
 
@@ -218,6 +222,7 @@ public class MenuFuncionarioView extends JFrame {
         }
     }
 
+    // metodo para exibir o pop up para consultar dados
     private void consultarDados() {
         String[] opcoes = {"Conta", "Funcionário", "Cliente"};
         String escolha = (String) JOptionPane.showInputDialog(this, "Escolha uma opção para consultar:", "Consulta de Dados",
@@ -254,7 +259,7 @@ public class MenuFuncionarioView extends JFrame {
 
                     JOptionPane.showMessageDialog(null, panel, "Dados do Usuário", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-
+                    // Caso o usuário não seja encontrado ou não haja dados
                     JOptionPane.showMessageDialog(null, "Usuário não encontrado ou dados inconsistentes.",
                             "Erro", JOptionPane.ERROR_MESSAGE);
                 }
@@ -265,7 +270,7 @@ public class MenuFuncionarioView extends JFrame {
         }
     }
 
-
+    // metodo para exibir o pop up para alterar dados
     private void alterarDados() {
 
         JPanel panel = new JPanel(new GridLayout(0, 2, 10, 10));
@@ -284,6 +289,7 @@ public class MenuFuncionarioView extends JFrame {
         if (result == JOptionPane.OK_OPTION) {
             String cpf = cpfField.getText();
 
+            // Usando FuncionarioDAO para consultar os dados do usuário
             UsuarioConta usuarioConta = funcionarioDAO.consultarDadosUsuario(cpf);
 
             if (usuarioConta != null) {
@@ -300,6 +306,7 @@ public class MenuFuncionarioView extends JFrame {
     }
 
 
+    // metodo para exibir o pop up para cadastrar funcionario
     private void cadastrarFuncionario() {
         JPanel panel = new JPanel(new GridLayout(0, 2, 10, 10));
 
@@ -326,60 +333,64 @@ public class MenuFuncionarioView extends JFrame {
         }
     }
 
-
+    // metodo para exibir o pop up para gerar relatorio
     private void gerarRelatorio() {
         String senhaAdmin = JOptionPane.showInputDialog(this, "Digite a senha do administrador:");
         if (senhaAdmin != null && senhaAdmin.equals("admin123")) {
             String cpfDoUsuario = JOptionPane.showInputDialog(this, "Digite o CPF do usuário que deseja o relatório:");
 
             FuncionarioDAO dao = new FuncionarioDAO();
-            GerarRelatorio relatorio = dao.gerarRelatorioDAO(cpfDoUsuario);
+            RelatorioUsuario relatorio = dao.gerarRelatorioDAO(cpfDoUsuario);
 
-//            if (relatorio != null) {
-//                ControllerRelatorio controller = new ControllerRelatorio();
-//                controller.exportarRelatorioParaCSV(relatorio);
-//                JOptionPane.showMessageDialog(this, "Relatório exportado com sucesso!");
-//
-//                JFrame relatorioFrame = new JFrame("Relatório do Usuário");
-//                relatorioFrame.setSize(500, 400);
-//                relatorioFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-//                relatorioFrame.setLocationRelativeTo(null);
-//
-//                JTextArea textArea = new JTextArea();
-//                textArea.setEditable(false);
-//
-//                StringBuilder relatorioTexto = new StringBuilder();
-//                relatorioTexto.append("Relatório do Usuário - CPF: ").append(cpfDoUsuario).append("\n\n");
-//
-//
-//                for (UsuarioConta.Conta conta : relatorio.getContas()) {
-//                    relatorioTexto.append("Conta: ").append(conta.getNumeroConta())
-//                            .append(" | Agência: ").append(conta.getAgencia())
-//                            .append(" | Saldo: R$ ").append(conta.getSaldo())
-//                            .append("\n");
-//                }
-//                relatorioTexto.append("\n");
-//
-//                for (Transacao transacao : relatorio.getTransacoes()) {
-//                    relatorioTexto.append("Transação: ").append(transacao.getTipoTransacao())
-//                            .append(" | Valor: R$ ").append(transacao.getValor())
-//                            .append(" | Data: ").append(transacao.getDataTransacao())
-//                            .append("\n");
-//                }
-//
-//                // definindo o texto no JTextArea e adicionando um scroll
-//                textArea.setText(relatorioTexto.toString());
-//                JScrollPane scrollPane = new JScrollPane(textArea);
-//                relatorioFrame.add(scrollPane);
-//
-//
-//                relatorioFrame.setVisible(true);
-//            } else {
-//                JOptionPane.showMessageDialog(this, "Relatorio não encontrado!", "Erro", JOptionPane.ERROR_MESSAGE);
-//            }
-//        } else {
-//            JOptionPane.showMessageDialog(this, "Senha incorreta!", "Erro", JOptionPane.ERROR_MESSAGE);
-//        }
-//    }
+            if (relatorio != null) {
+                RelatorioController controller = new RelatorioController();
+                controller.exportarRelatorioParaCSV(relatorio);
+                JOptionPane.showMessageDialog(this, "Relatório exportado com sucesso!");
 
-}}}
+                // criando a estrutura da janela do relatorio
+                JFrame relatorioFrame = new JFrame("Relatório do Usuário");
+                relatorioFrame.setSize(500, 400);
+                relatorioFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                relatorioFrame.setLocationRelativeTo(null);
+
+                // criando a area de texto e configurando o layout
+                JTextArea textArea = new JTextArea();
+                textArea.setEditable(false);
+
+                // montando o conteudo do relatorio
+                StringBuilder relatorioTexto = new StringBuilder();
+                relatorioTexto.append("Relatório do Usuário - CPF: ").append(cpfDoUsuario).append("\n\n");
+
+                // informacoes das Contas
+                for (UsuarioConta.Conta conta : relatorio.getContas()) {
+                    relatorioTexto.append("Conta: ").append(conta.getNumeroConta())
+                            .append(" | Agência: ").append(conta.getAgencia())
+                            .append(" | Saldo: R$ ").append(conta.getSaldo())
+                            .append("\n");
+                }
+                relatorioTexto.append("\n");
+
+                // informacoes das Transacoes
+                for (Transacao transacao : relatorio.getTransacoes()) {
+                    relatorioTexto.append("Transação: ").append(transacao.getTipoTransacao())
+                            .append(" | Valor: R$ ").append(transacao.getValor())
+                            .append(" | Data: ").append(transacao.getDataTransacao())
+                            .append("\n");
+                }
+
+                // definindo o texto no JTextArea e adicionando um scroll
+                textArea.setText(relatorioTexto.toString());
+                JScrollPane scrollPane = new JScrollPane(textArea);
+                relatorioFrame.add(scrollPane);
+
+                // exibindo a janela
+                relatorioFrame.setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(this, "Relatorio não encontrado!", "Erro", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Senha incorreta!", "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+}

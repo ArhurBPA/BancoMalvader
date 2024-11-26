@@ -1,10 +1,10 @@
 package models;
 
-import util.Usuario;
+import utils.Usuario;
 
 import java.util.Date;
 
-public abstract class Cliente extends Usuario {
+public class Cliente extends Usuario {
 
     private String senha;
     private double saldo;

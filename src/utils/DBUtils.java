@@ -1,4 +1,4 @@
-package util;
+package utils;
 
 import dao.ConnectionFactory;
 import models.Endereco;
@@ -9,23 +9,25 @@ import java.sql.SQLException;
 
 import java.util.UUID;
 
-public class DBUtil {
+public class DBUtils {
 
     private static String Sql;
     private static String SqlEndereco;
 
+    // metodo para gerar um codigo unico de funcionario utilizando UUID
     public static String GerarCodigoFunc() {
         return UUID.randomUUID().toString();
     }
 
+    // metodo para inserir um novo usuario no banco de dados
     public void insertNewUser(int idGerado, String tipoUser, String cargo, Endereco enderecoUsuario) {
         System.out.println("ID gerado: " + idGerado);
 
         if (tipoUser.equals("FUNCIONARIO")) {
             String codFunc = GerarCodigoFunc();
 
-            setSql("INSERT INTO TB_FUNCIONARIO (CD_FUNCIONARIO, NO_CARGO, ID_USUARIO) VALUES (?, ?, ?)");
-            setSqlEndereco("INSERT INTO TB_ENDERECO (NR_CEP, NO_LOCAL, NR_CASA, NO_BAIRRO, NO_CIDADE, SG_ESTADO, ID_USUARIO) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            setSql("INSERT INTO funcionario (codigo_funcionario, cargo, id_usuario) VALUES (?, ?, ?)");
+            setSqlEndereco("INSERT INTO endereco (cep, local, numero_casa, bairro, cidade, estado, id_usuario) VALUES (?, ?, ?, ?, ?, ?, ?)");
 
             try (Connection conn2 = ConnectionFactory.getConnection();
                  PreparedStatement ps2 = conn2.prepareStatement(Sql);
@@ -51,8 +53,8 @@ public class DBUtil {
             }
 
         } else {
-            setSql("INSERT INTO TB_CLIENTE (ID_USUARIO) VALUES (?)");
-            setSqlEndereco("INSERT INTO TB_ENDERECO (NR_CEP, NO_LOCAL, NR_CASA, NO_BAIRRO, NO_CIDADE, SG_ESTADO, ID_USUARIO) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            setSql("INSERT INTO cliente (id_usuario) VALUES (?)");
+            setSqlEndereco("INSERT INTO endereco (cep, local, numero_casa, bairro, cidade, estado, id_usuario) VALUES (?, ?, ?, ?, ?, ?, ?)");
 
             try (Connection conn = ConnectionFactory.getConnection();
                  PreparedStatement ps = conn.prepareStatement(Sql);

@@ -1,65 +1,52 @@
 package dao;
 
-import models.Cliente;
-import models.Endereco;
-import util.DBUtil;
-
 import java.sql.*;
 import java.util.Optional;
+import models.Cliente;
+
+import models.Endereco;
+import utils.DBUtils;
 
 public class ClienteDAO {
 
-    private static String consultaSQL;
+    private static String sql;
 
+    // metodo para obter um usuario (Cliente) do banco de dados baseado no email e senha fornecidos
     public Optional<Cliente> getUser(String email, String senha) {
-        consultaSQL = "SELECT * FROM TB_USUARIO WHERE email = ?";
+        setSql("SELECT * FROM usuario WHERE email = ?");
 
-        try (Connection conexao = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conexao.prepareStatement(consultaSQL)) {
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, email);
-            try (ResultSet resultado = stmt.executeQuery()) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
 
-                if (resultado.next()) {
-                    String senhaBanco = resultado.getString("SENHA");
+                if (rs.next()) {
+                    String senhaQuery = rs.getString("senha");
 
-                    if (senhaBanco.equals(senha)) {
-                        int id = resultado.getInt("ID_USUARIO");
+                    if(senhaQuery.equals(senha)){
+                        int id = rs.getInt("id_usuario");
+                        String nome = rs.getString("nome");
+                        String cpf = rs.getString("cpf");
+                        Date dataNascimento = rs.getDate("data_nascimento");
+                        String telefone = rs.getString("telefone");
+                        String tipoUser = rs.getString("tipo_usuario");
 
-                        String nome = resultado.getString("NO_USUARIO");
-
-                        String cpf = resultado.getString("NR_CPF_USUARIO");
-
-                        Date dataNascimento = resultado.getDate("DT_NASCIMENTO");
-
-                        String telefone = resultado.getString("NR_TELEFONE");
-
-                        String tipoUsuario = resultado.getString("TP_USUARIO");
-
-                        if (tipoUsuario.equals("cliente")) {
-                            return Optional.of(new Cliente(id, nome, email, cpf, telefone, senhaBanco, true) {
-                                @Override
-                                public boolean login(String senha) {
-                                    return false;
-                                }
-
-                                @Override
-                                public void logout() {
-
-                                }
-
-                                @Override
-                                public String consultarDados() {
-                                    return "";
-                                }
-                            });
-                        } else {
+                        if(tipoUser.equals("cliente")){
+                            System.out.println("ID: " + id + ", Nome: " + nome + ", Email: " + email);
+                            return Optional.of(new Cliente(id, nome, email, cpf, telefone, senhaQuery, true));
+                        }
+                        else{
+                            System.out.println("Nenhum usuario encontrado.");
                             return Optional.empty();
                         }
-                    } else {
+                    }
+                    else{
+                        System.out.println("Nenhum usuario encontrado.");
                         return Optional.empty();
                     }
                 } else {
+                    System.out.println("Nenhum usuario encontrado.");
                     return Optional.empty();
                 }
 
@@ -71,29 +58,29 @@ public class ClienteDAO {
         }
     }
 
-
+    // metodo para inserir um novo cliente na tabela 'usuario' do banco de dados
     public void inserirCliente(String nome, String email, String senha, String cpf, String telefone, String dataNascimento, Endereco enderecoUsuario, String tipoCliente, String cargo) {
-        consultaSQL = "INSERT INTO TB_USUARIO (NO_USUARIO, email, SENHA, NR_CPF_USUARIO, NR_TELEFONE, DT_NASCIMENTO, TP_USUARIO) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conexao = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conexao.prepareStatement(consultaSQL, Statement.RETURN_GENERATED_KEYS)) {
+        setSql("INSERT INTO usuario (nome, email, senha, cpf, telefone, data_nascimento, tipo_usuario) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            stmt.setString(1, nome);
-            stmt.setString(2, email);
-            stmt.setString(3, senha);
-            stmt.setString(4, cpf);
-            stmt.setString(5, telefone);
-            stmt.setString(6, dataNascimento);
-            stmt.setString(7, tipoCliente);
+            ps.setString(1, nome);
+            ps.setString(2, email);
+            ps.setString(3, senha);
+            ps.setString(4, cpf);
+            ps.setString(5, telefone);
+            ps.setString(6, dataNascimento);
+            ps.setString(7, tipoCliente);
 
-            int linhasAfetadas = stmt.executeUpdate();
+            int rowsAffected = ps.executeUpdate();
 
-            if (linhasAfetadas > 0) {
-                try (ResultSet chavesGeradas = stmt.getGeneratedKeys()) {
-                    if (chavesGeradas.next()) {
-                        int idGerado = chavesGeradas.getInt(1);
-                        DBUtil utilitariosBanco = new DBUtil();
+            if (rowsAffected > 0) {
+                try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        int idGerado = generatedKeys.getInt(1);
+                        DBUtils dbUtils = new DBUtils();
 
-                        utilitariosBanco.insertNewUser(idGerado, tipoCliente, cargo, enderecoUsuario);
+                        dbUtils.insertNewUser(idGerado, tipoCliente, cargo, enderecoUsuario);
                     }
                 }
             }
@@ -103,11 +90,13 @@ public class ClienteDAO {
         }
     }
 
-    public static void definirConsultaSQL(String sql) {
-        ClienteDAO.consultaSQL = sql;
+    // metodo para definir a query SQL a ser executada
+    public static void setSql(String sql) {
+        ClienteDAO.sql = sql;
     }
 
-    public static String obterConsultaSQL() {
-        return consultaSQL;
+    // metodo para obter a query SQL atual
+    public static String getSql() {
+        return sql;
     }
 }

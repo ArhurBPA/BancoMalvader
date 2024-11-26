@@ -1,10 +1,13 @@
 package dao;
 
-import models.*;
-
 import java.sql.*;
 import java.util.Optional;
+
+import models.*;
+
 import java.util.UUID;
+
+import utils.DBUtils;
 
 public class FuncionarioDAO {
 
@@ -33,22 +36,7 @@ public class FuncionarioDAO {
 
                         if(tipoUser.equals("funcionario")){
                             System.out.println("ID: " + id + ", Nome: " + nome + ", Email: " + email);
-                            return Optional.of(new Cliente(id, nome, email, cpf, telefone, senhaQuery, true) {
-                                @Override
-                                public boolean login(String senha) {
-                                    return false;
-                                }
-
-                                @Override
-                                public void logout() {
-
-                                }
-
-                                @Override
-                                public String consultarDados() {
-                                    return "";
-                                }
-                            });
+                            return Optional.of(new Cliente(id, nome, email, cpf, telefone, senhaQuery, true));
                         }
                         else{
                             System.out.println("Nenhum usuario encontrado.");
@@ -394,13 +382,13 @@ public class FuncionarioDAO {
     }
 
     // metodo para gerra um relatorio de um usuario com base no CPF fornecido
-    public GerarRelatorio gerarRelatorioDAO(String cpf) {
+    public RelatorioUsuario gerarRelatorioDAO(String cpf) {
         String sqlSelecionarIdUsuario = "SELECT id_usuario FROM usuario WHERE cpf = ?";
         String sqlSelecionarIdCliente = "SELECT id_cliente FROM cliente WHERE id_usuario = ?";
         String sqlSelecionarContas = "SELECT id_conta, numero_conta, agencia, saldo, tipo_conta FROM conta WHERE id_cliente = ?";
         String sqlSelecionarTransacoes = "SELECT id_transacao, id_conta, tipo_transacao, valor, data_hora FROM transacao WHERE id_conta = ?";
 
-        GerarRelatorio relatorio = new GerarRelatorio(); // Classe modelo para armazenar os dados do relatório
+        RelatorioUsuario relatorio = new RelatorioUsuario(); // Classe modelo para armazenar os dados do relatório
 
         try (Connection conn = ConnectionFactory.getConnection()) {
             // 1. Selecionar o id_usuario com base no cpf

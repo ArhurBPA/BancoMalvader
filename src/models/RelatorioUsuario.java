@@ -3,12 +3,12 @@ package models;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GerarRelatorio {
+public class RelatorioUsuario {
 
     private final List<UsuarioConta.Conta> contas;
     private final List<Transacao> transacoes;
 
-    public GerarRelatorio() {
+    public RelatorioUsuario() {
         this.contas = new ArrayList<>();
         this.transacoes = new ArrayList<>();
     }

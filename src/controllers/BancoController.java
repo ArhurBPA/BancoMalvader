@@ -1,16 +1,19 @@
-package controller;
+package controllers;
 
 import dao.BancoDAO;
 import models.Cliente;
+import models.Transacao;
+import utils.CSVExporter;
 
 import javax.swing.*;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.List;
 
-public class ControllerBanco {
+public class BancoController {
     private BancoDAO bancoDAO;
 
     // construtor que inicializa o BancoDAO com o cliente fornecido
-    public ControllerBanco(Cliente cliente) {
+    public BancoController(Cliente cliente) {
         try {
             this.bancoDAO = new BancoDAO(cliente);
         } catch (SQLException e) {
@@ -19,6 +22,7 @@ public class ControllerBanco {
         }
     }
 
+    // metodo para consultar o saldo do cliente
     public double consultarSaldo() {
         try {
             return bancoDAO.consultarSaldo();
@@ -28,6 +32,7 @@ public class ControllerBanco {
         }
     }
 
+    // metodo para realizar um depósito na conta do cliente
     public void realizarDeposito(double valor) {
         try {
             bancoDAO.realizarDeposito(valor);
@@ -37,6 +42,7 @@ public class ControllerBanco {
         }
     }
 
+    // metodo para realizar um saque da conta do cliente
     public void realizarSaque(double valor) {
         try {
             double saldoAtual = bancoDAO.consultarSaldo();
@@ -51,21 +57,22 @@ public class ControllerBanco {
         }
     }
 
-//    public void gerarRelatorio() {
-//        try {
-//            List<Transacao> transacoes = bancoDAO.obterTransacoes();
-//            if (transacoes.isEmpty()) {
-//                JOptionPane.showMessageDialog(null, "Nenhuma transação encontrada.", "Relatório", JOptionPane.INFORMATION_MESSAGE);
-//            } else {
-//                StringBuilder relatorio = new StringBuilder("Relatório de Transações:\n");
-//                for (Transacao transacao : transacoes) {
-//                    relatorio.append("- ").append(transacao.getTipoTransacao()).append(": R$ ").append(transacao.getValor()).append("\n");
-//                }
-////                JOptionPane.showMessageDialog(null, relatorio.toString(), "Relatório", JOptionPane.INFORMATION_MESSAGE);
-////                new GerarCSV().exportarParaCSV(transacoes, "transacoes.csv");
-//            }
-//        } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "Erro ao gerar relatório: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
-//        }
-//    }
+    // metodo para gerar um relatorio das transacoes do cliente
+    public void gerarRelatorio() {
+        try {
+            List<Transacao> transacoes = bancoDAO.obterTransacoes();
+            if (transacoes.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Nenhuma transação encontrada.", "Relatório", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                StringBuilder relatorio = new StringBuilder("Relatório de Transações:\n");
+                for (Transacao transacao : transacoes) {
+                    relatorio.append("- ").append(transacao.getTipoTransacao()).append(": R$ ").append(transacao.getValor()).append("\n");
+                }
+                JOptionPane.showMessageDialog(null, relatorio.toString(), "Relatório", JOptionPane.INFORMATION_MESSAGE);
+                new CSVExporter().exportarParaCSV(transacoes, "transacoes.csv");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Erro ao gerar relatório: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 }

@@ -1,13 +1,13 @@
-/*package util;
+package utils;
 
-import com.open.CSVWriter;
+import com.opencsv.CSVWriter;
 import models.Transacao;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-public class GerarCSV<CSVWriter> {
+public class CSVExporter {
 
     // metodo para exportar dados para o CSV
     public void exportarParaCSV(List<Transacao> transacoes, String caminhoArquivo) {
@@ -30,4 +30,4 @@ public class GerarCSV<CSVWriter> {
             e.printStackTrace();
         }
     }
-}*/
+}

@@ -1,29 +1,31 @@
-package controller;
+package controllers;
 
 import dao.ClienteDAO;
 import dao.FuncionarioDAO;
 import models.Cliente;
-import view.MenuFuncionarioView;
-import view.MenuPrincipalView;
-import view.ModalSenhaVW;
-import view.MenuClienteView;
+import view.FuncionarioView;
+import view.MainView;
+import view.PasswordDialogView;
+import view.ClienteView;
 
 import javax.swing.*;
 import java.util.Optional;
 
-public class ControllerUsuario {
-    private final MenuPrincipalView mainView;
+public class UsuarioController {
+    private MainView mainView;
 
-    // construtor
-    public ControllerUsuario() {
-        mainView = new MenuPrincipalView(this);
+    // construtor que inicializa a interface principal
+    public UsuarioController() {
+        mainView = new MainView(this);
     }
 
+    // metodo que abre um dialogo para o usuário inserir a senha, baseado no tipo de usuario
     public void abrirDialogoSenha(String tipoUsuario) {
-        new ModalSenhaVW(this, tipoUsuario);
+        new PasswordDialogView(this, tipoUsuario);
     }
 
-    public void verificarSenha(String tipoUsuario, String email, String senha, ModalSenhaVW passwordDialogView) {
+    // metodo para verificar as credenciais fornecidas pelo usuario e, se validas, abre a interface correspondente ao tipo de usuario
+    public void verificarSenha(String tipoUsuario, String email ,String senha, PasswordDialogView passwordDialogView) {
         if (tipoUsuario.equals("Cliente")) {
             ClienteDAO clienteDAO = new ClienteDAO();
             Optional<Cliente> clienteLogado = clienteDAO.getUser(email, senha);
@@ -31,7 +33,7 @@ public class ControllerUsuario {
             if (clienteLogado.isPresent()) {
                 passwordDialogView.dispose();
                 mainView.dispose();
-                MenuClienteView clienteView = new MenuClienteView(clienteLogado.get());
+                ClienteView clienteView = new ClienteView(clienteLogado.get());
                 clienteView.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 clienteView.setSize(400, 600);
                 clienteView.setLocationRelativeTo(null);
@@ -46,7 +48,7 @@ public class ControllerUsuario {
             if (funcionarioLogado.isPresent()) {
                 passwordDialogView.dispose();
                 mainView.dispose();
-                MenuFuncionarioView funcionarioView = new MenuFuncionarioView(funcionarioLogado.get());
+                FuncionarioView funcionarioView = new FuncionarioView(funcionarioLogado.get());
                 funcionarioView.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 funcionarioView.setSize(400, 600);
                 funcionarioView.setLocationRelativeTo(null);
@@ -60,10 +62,8 @@ public class ControllerUsuario {
         }
     }
 
-    public boolean verificarSenha(String usuario, String s) {
-        return false;
+    // metodo para retornar a referencia à mainView
+    public MainView getMainView() {
+        return mainView;
     }
 }
-//    public MenuPrincipalView getMainView() {
-//        return mainView;
-//    }
