@@ -1,160 +1,113 @@
 package dao;
 
-import model.Cliente;
-import model.Endereco;
+import models.Cliente;
+import models.Endereco;
+import util.DBUtil;
 
 import java.sql.*;
-import java.time.LocalDate;
+import java.util.Optional;
 
 public class ClienteDAO {
 
-    public static void criarCliente(Cliente cliente) {
-        String sql = "INSERT INTO TB_USUARIO (NO_USUARIO, NR_CPF_USUARIO, DT_NASCIMENTO, NR_TELEFONE, SENHA, TP_USUARIO) VALUES (?, ?, ?, ?, ?, ?)";
+    private static String consultaSQL;
 
-        try (Connection conn = ConnectionFactory.conectar();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+    public Optional<Cliente> getUser(String email, String senha) {
+        consultaSQL = "SELECT * FROM TB_USUARIO WHERE email = ?";
 
-            stmt.setString(1, cliente.getNome());
-            stmt.setString(2, cliente.getCpf());
-            stmt.setDate(3, Date.valueOf(cliente.getDataNascimento()));
-            stmt.setString(4, cliente.getTelefone());
-            stmt.setString(5, cliente.getSenha()); // Assuming Cliente class has getSenha() method for hashed password
-            stmt.setString(6, "CLIENTE"); // Define o tipo de usuário como "CLIENTE"
+        try (Connection conexao = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conexao.prepareStatement(consultaSQL)) {
 
-            int affectedRows = stmt.executeUpdate();
-            if (affectedRows == 0) {
-                throw new SQLException("Falha ao criar o cliente, nenhuma linha afetada.");
-            }
+            stmt.setString(1, email);
+            try (ResultSet resultado = stmt.executeQuery()) {
 
-            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    int idUsuario = generatedKeys.getInt(1);
-                    cliente.setId(idUsuario);
+                if (resultado.next()) {
+                    String senhaBanco = resultado.getString("SENHA");
 
-                    // Agora você pode usar o idUsuario para inserir na tabela TB_CLIENTE
-                    inserirNaTabelaCliente(cliente, conn);
+                    if (senhaBanco.equals(senha)) {
+                        int id = resultado.getInt("ID_USUARIO");
 
-                    // E também inserir o endereço na tabela TB_ENDERECO
-                    inserirEndereco(cliente.getEndereco(), idUsuario, conn);
+                        String nome = resultado.getString("NO_USUARIO");
+
+                        String cpf = resultado.getString("NR_CPF_USUARIO");
+
+                        Date dataNascimento = resultado.getDate("DT_NASCIMENTO");
+
+                        String telefone = resultado.getString("NR_TELEFONE");
+
+                        String tipoUsuario = resultado.getString("TP_USUARIO");
+
+                        if (tipoUsuario.equals("cliente")) {
+                            return Optional.of(new Cliente(id, nome, email, cpf, telefone, senhaBanco, true) {
+                                @Override
+                                public boolean login(String senha) {
+                                    return false;
+                                }
+
+                                @Override
+                                public void logout() {
+
+                                }
+
+                                @Override
+                                public String consultarDados() {
+                                    return "";
+                                }
+                            });
+                        } else {
+                            return Optional.empty();
+                        }
+                    } else {
+                        return Optional.empty();
+                    }
                 } else {
-                    throw new SQLException("Falha ao criar o cliente, não foi possível obter o ID.");
+                    return Optional.empty();
+                }
+
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao consultar os dados: " + e.getMessage());
+            e.printStackTrace();
+            return Optional.empty();
+        }
+    }
+
+
+    public void inserirCliente(String nome, String email, String senha, String cpf, String telefone, String dataNascimento, Endereco enderecoUsuario, String tipoCliente, String cargo) {
+        consultaSQL = "INSERT INTO TB_USUARIO (NO_USUARIO, email, SENHA, NR_CPF_USUARIO, NR_TELEFONE, DT_NASCIMENTO, TP_USUARIO) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (Connection conexao = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conexao.prepareStatement(consultaSQL, Statement.RETURN_GENERATED_KEYS)) {
+
+            stmt.setString(1, nome);
+            stmt.setString(2, email);
+            stmt.setString(3, senha);
+            stmt.setString(4, cpf);
+            stmt.setString(5, telefone);
+            stmt.setString(6, dataNascimento);
+            stmt.setString(7, tipoCliente);
+
+            int linhasAfetadas = stmt.executeUpdate();
+
+            if (linhasAfetadas > 0) {
+                try (ResultSet chavesGeradas = stmt.getGeneratedKeys()) {
+                    if (chavesGeradas.next()) {
+                        int idGerado = chavesGeradas.getInt(1);
+                        DBUtil utilitariosBanco = new DBUtil();
+
+                        utilitariosBanco.insertNewUser(idGerado, tipoCliente, cargo, enderecoUsuario);
+                    }
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Erro ao criar cliente: " + e.getMessage());
             e.printStackTrace();
+            throw new RuntimeException("Erro ao inserir cliente na tabela usuario: " + e.getMessage());
         }
     }
 
-    private static void inserirNaTabelaCliente(Cliente cliente, Connection conn) throws SQLException {
-        String sqlCliente = "INSERT INTO TB_CLIENTE (ID_USUARIO) VALUES (?)";
-        try (PreparedStatement stmtCliente = conn.prepareStatement(sqlCliente)) {
-            stmtCliente.setInt(1, cliente.getId());
-            stmtCliente.executeUpdate();
-        }
+    public static void definirConsultaSQL(String sql) {
+        ClienteDAO.consultaSQL = sql;
     }
 
-    private static void inserirEndereco(Endereco endereco, int idUsuario, Connection conn) throws SQLException {
-        String sqlEndereco = "INSERT INTO TB_ENDERECO (NR_CEP, NO_LOCAL, NR_CASA, NO_BAIRRO, NO_CIDADE, SG_ESTADO, ID_USUARIO) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmtEndereco = conn.prepareStatement(sqlEndereco)) {
-            stmtEndereco.setString(1, endereco.getCep());
-            stmtEndereco.setString(2, endereco.getLocal());
-            stmtEndereco.setInt(3, endereco.getNumeroCasa());
-            stmtEndereco.setString(4, endereco.getBairro());
-            stmtEndereco.setString(5, endereco.getCidade());
-            stmtEndereco.setString(6, endereco.getEstado());
-            stmtEndereco.setInt(7, idUsuario);
-            stmtEndereco.executeUpdate();
-        }
-    }
-
-    public static Cliente buscarClientePorCPF(String cpf) {
-        String sql = "SELECT * FROM TB_USUARIO u " +
-                "JOIN TB_CLIENTE c ON u.ID_USUARIO = c.ID_USUARIO " +
-                "JOIN TB_ENDERECO e ON u.ID_USUARIO = e.ID_USUARIO " +
-                "WHERE u.NR_CPF_USUARIO = ?";
-
-        try (Connection conn = ConnectionFactory.conectar();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, cpf);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    // Cria um novo objeto Cliente e define seus atributos
-                    Cliente cliente = new Cliente();
-                    cliente.setId(rs.getInt("ID_USUARIO"));
-                    cliente.setNome(rs.getString("NO_USUARIO"));
-                    cliente.setCpf(rs.getString("NR_CPF_USUARIO"));
-                    cliente.setDataNascimento(rs.getDate("DT_NASCIMENTO").toLocalDate());
-                    cliente.setTelefone(rs.getString("NR_TELEFONE"));
-                    cliente.setSenha(rs.getString("SENHA"));
-
-                    // Cria um novo objeto Endereco e define seus atributos
-                    Endereco endereco = new Endereco();
-                    endereco.setCep(rs.getString("NR_CEP"));
-                    endereco.setLocal(rs.getString("NO_LOCAL"));
-                    endereco.setNumeroCasa(rs.getInt("NR_CASA"));
-                    endereco.setBairro(rs.getString("NO_BAIRRO"));
-                    endereco.setCidade(rs.getString("NO_CIDADE"));
-                    endereco.setEstado(rs.getString("SG_ESTADO"));
-
-                    // Associa o endereço ao cliente
-                    cliente.setEndereco(endereco);
-
-                    return cliente;
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Erro ao buscar cliente por CPF: " + e.getMessage());
-            e.printStackTrace();
-        }
-
-        return null; // Cliente não encontrado
-    }
-
-    public static Cliente buscarClientePorId(int idCliente) {
-        String sql = "SELECT * FROM TB_USUARIO u " +
-                "JOIN TB_CLIENTE c ON u.ID_USUARIO = c.ID_USUARIO " +
-                "JOIN TB_ENDERECO e ON u.ID_USUARIO = e.ID_USUARIO " +
-                "WHERE u.ID_USUARIO = ?";
-
-        try (Connection conn = ConnectionFactory.conectar();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, idCliente);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    // Cria um novo objeto Cliente e define seus atributos
-                    Cliente cliente = new Cliente();
-                    cliente.setId(rs.getInt("ID_USUARIO"));
-                    cliente.setNome(rs.getString("NO_USUARIO"));
-                    cliente.setCpf(rs.getString("NR_CPF_USUARIO"));
-                    cliente.setDataNascimento(rs.getDate("DT_NASCIMENTO").toLocalDate());
-                    cliente.setTelefone(rs.getString("NR_TELEFONE"));
-                    cliente.setSenha(rs.getString("SENHA"));
-
-                    // Cria um novo objeto Endereco e define seus atributos
-                    Endereco endereco = new Endereco();
-                    endereco.setCep(rs.getString("NR_CEP"));
-                    endereco.setLocal(rs.getString("NO_LOCAL"));
-                    endereco.setNumeroCasa(rs.getInt("NR_CASA"));
-                    endereco.setBairro(rs.getString("NO_BAIRRO"));
-                    endereco.setCidade(rs.getString("NO_CIDADE"));
-                    endereco.setEstado(rs.getString("SG_ESTADO"));
-
-                    // Associa o endereço ao cliente
-                    cliente.setEndereco(endereco);
-
-                    return cliente;
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Erro ao buscar cliente por ID: " + e.getMessage());
-            e.printStackTrace();
-        }
-
-        return null; // Cliente não encontrado
+    public static String obterConsultaSQL() {
+        return consultaSQL;
     }
 }

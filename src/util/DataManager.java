@@ -1,10 +1,10 @@
 package util;
 
+import models.Conta;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import model.*;
 
 public class DataManager {
 
@@ -79,22 +79,22 @@ public class DataManager {
     }
 
     // Salvar funcionários em arquivo
-    public static void salvarFuncionarios(List<Funcionario> funcionarios, String filename) {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
-            oos.writeObject(funcionarios);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Carregar funcionários do arquivo
-    @SuppressWarnings("unchecked")
-    public static List<Funcionario> carregarFuncionarios(String filename) {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename))) {
-            return (List<Funcionario>) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+//    public static void salvarFuncionarios(List<Funcionario> funcionarios, String filename) {
+//        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
+//            oos.writeObject(funcionarios);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
+//
+//    // Carregar funcionários do arquivo
+//    @SuppressWarnings("unchecked")
+//    public static List<Funcionario> carregarFuncionarios(String filename) {
+//        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename))) {
+//            return (List<Funcionario>) ois.readObject();
+//        } catch (IOException | ClassNotFoundException e) {
+//            e.printStackTrace();
+//            return null;
+//        }
+//    }
 }
