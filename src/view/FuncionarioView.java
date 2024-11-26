@@ -24,69 +24,35 @@ public class FuncionarioView extends JFrame {
 
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS)); // layout da tela
 
-        Font primariaFont = new Font("SansSerif", Font.BOLD, 30); // fonte
-        Font secundariaFont = new Font("SansSerif", Font.BOLD, 15);
-
         // label de titulo
         tituloLabel = new JLabel("Area do Funcionario");
-        tituloLabel.setFont(primariaFont); // setar fonte
-        tituloLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // botoes
         aberturaButton = new JButton("Abrir Conta");
-        aberturaButton.setFont(secundariaFont);
-        aberturaButton.setPreferredSize(new Dimension(200, 50));
-        aberturaButton.setMaximumSize(new Dimension(200, 50));
-        aberturaButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         aberturaButton.addActionListener(e -> abrirConta());
 
         encerramentoButton = new JButton("Encerrar Conta");
-        encerramentoButton.setFont(secundariaFont);
-        encerramentoButton.setPreferredSize(new Dimension(200, 50));
-        encerramentoButton.setMaximumSize(new Dimension(200, 50));
-        encerramentoButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         encerramentoButton.addActionListener(e -> encerrarConta());
 
         consultaButton = new JButton("Consultar Dados");
-        consultaButton.setFont(secundariaFont);
-        consultaButton.setPreferredSize(new Dimension(200, 50));
-        consultaButton.setMaximumSize(new Dimension(200, 50));
-        consultaButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         consultaButton.addActionListener(e -> consultarDados());
 
         alteracaoButton = new JButton("Alterar Dados");
-        alteracaoButton.setFont(secundariaFont);
-        alteracaoButton.setPreferredSize(new Dimension(200, 50));
-        alteracaoButton.setMaximumSize(new Dimension(200, 50));
-        alteracaoButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         alteracaoButton.addActionListener(e -> alterarDados());
 
         cadastroButton = new JButton("Cadastrar Funcionario");
-        cadastroButton.setFont(secundariaFont);
-        cadastroButton.setPreferredSize(new Dimension(200, 50));
-        cadastroButton.setMaximumSize(new Dimension(200, 50));
-        cadastroButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         cadastroButton.addActionListener(e -> cadastrarFuncionario());
 
         relatorioButton = new JButton("Gerar Relatório");
-        relatorioButton.setFont(secundariaFont);
-        relatorioButton.setPreferredSize(new Dimension(200, 50));
-        relatorioButton.setMaximumSize(new Dimension(200, 50));
-        relatorioButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         relatorioButton.addActionListener(e -> gerarRelatorio());
 
         sairButton = new JButton("Sair");
-        sairButton.setFont(secundariaFont);
-        sairButton.setPreferredSize(new Dimension(200, 50));
-        sairButton.setMaximumSize(new Dimension(200, 50));
-        sairButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         sairButton.addActionListener(e -> {
             dispose(); // fecha a TelaCliente
             // volta para a TelaInicial
             MainView mainView = new MainView(new UsuarioController());
             mainView.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            mainView.setSize(500, 500);
             mainView.setVisible(true);
             mainView.setLocationRelativeTo(null);
         });

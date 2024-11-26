@@ -20,48 +20,24 @@ public class ClienteView extends JFrame {
 
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS)); // layout da tela
 
-        Font primariaFont = new Font("SansSerif", Font.BOLD, 30); // fonte
-        Font secundariaFont = new Font("SansSerif", Font.BOLD, 15);
 
         // label de titulo
         tituloLabel = new JLabel("Área do Cliente");
-        tituloLabel.setFont(primariaFont);
-        tituloLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // botoes
         saldoButton = new JButton("Exibir Saldo");
-        saldoButton.setFont(secundariaFont);
-        saldoButton.setPreferredSize(new Dimension(200, 50));
-        saldoButton.setMaximumSize(new Dimension(200, 50));
-        saldoButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         saldoButton.addActionListener(e -> exibirSaldo());
 
         depositarButton = new JButton("Realizar Depósito");
-        depositarButton.setFont(secundariaFont);
-        depositarButton.setPreferredSize(new Dimension(200, 50));
-        depositarButton.setMaximumSize(new Dimension(200, 50));
-        depositarButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         depositarButton.addActionListener(e -> realizarDeposito());
 
         sacarButton = new JButton("Realizar Saque");
-        sacarButton.setFont(secundariaFont);
-        sacarButton.setPreferredSize(new Dimension(200, 50));
-        sacarButton.setMaximumSize(new Dimension(200, 50));
-        sacarButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         sacarButton.addActionListener(e -> realizarSaque());
 
         extratoButton = new JButton("Exibir Extrato");
-        extratoButton.setFont(secundariaFont);
-        extratoButton.setPreferredSize(new Dimension(200, 50));
-        extratoButton.setMaximumSize(new Dimension(200, 50));
-        extratoButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         extratoButton.addActionListener(e -> exibirExtrato());
 
         sairButton = new JButton("Sair");
-        sairButton.setFont(secundariaFont);
-        sairButton.setPreferredSize(new Dimension(200, 50));
-        sairButton.setMaximumSize(new Dimension(200, 50));
-        sairButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         sairButton.addActionListener(e -> dispose());
 
         // adicionar elementos
