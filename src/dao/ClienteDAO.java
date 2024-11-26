@@ -13,7 +13,7 @@ public class ClienteDAO {
 
     // metodo para obter um usuario (Cliente) do banco de dados baseado no email e senha fornecidos
     public Optional<Cliente> getUser(String email, String senha) {
-        setSql("SELECT * FROM usuario WHERE email = ?");
+        setSql("SELECT * FROM tb_usuario WHERE NR_CPF_USUARIO = ?");
 
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -22,17 +22,17 @@ public class ClienteDAO {
             try (ResultSet rs = ps.executeQuery()) {
 
                 if (rs.next()) {
-                    String senhaQuery = rs.getString("senha");
+                    String senhaQuery = rs.getString("SENHA");
 
                     if(senhaQuery.equals(senha)){
-                        int id = rs.getInt("id_usuario");
-                        String nome = rs.getString("nome");
-                        String cpf = rs.getString("cpf");
-                        Date dataNascimento = rs.getDate("data_nascimento");
-                        String telefone = rs.getString("telefone");
-                        String tipoUser = rs.getString("tipo_usuario");
+                        int id = rs.getInt("ID_USUARIO");
+                        String nome = rs.getString("NO_USUARIO");
+                        String cpf = rs.getString("NR_CPF_USUARIO");
+                        Date dataNascimento = rs.getDate("DT_NASCIMENTO");
+                        String telefone = rs.getString("NR_TELEFONE");
+                        String tipoUser = rs.getString("TP_USUARIO");
 
-                        if(tipoUser.equals("cliente")){
+                        if(tipoUser.equals("CLIENTE")){
                             System.out.println("ID: " + id + ", Nome: " + nome + ", Email: " + email);
                             return Optional.of(new Cliente(id, nome, email, cpf, telefone, senhaQuery, true));
                         }

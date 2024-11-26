@@ -28,7 +28,7 @@ public class PasswordDialogView {
             public void actionPerformed(ActionEvent e) {
                 char[] senha = campoSenha.getPassword();
                 String email = campoEmail.getText();
-                controller.verificarSenha(tipoUsuario, email, new String(senha), PasswordDialogView.this);
+                controller.verificarSenha(email, new String(senha));
             }
         });
 

@@ -15,7 +15,7 @@ public class FuncionarioDAO {
 
     // metodo para obter um usuario (Cliente) do banco de dados baseado no email e senha fornecidos
     public Optional<Cliente> getUser(String email, String senha) {
-        setSql("SELECT * FROM usuario WHERE email = ?");
+        setSql("SELECT * FROM tb_usuario WHERE cpf = ?");
 
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -62,9 +62,9 @@ public class FuncionarioDAO {
 
     // metodo para inserir uma nova conta para um cliente com base nos detalhes fornecidos
     public String inserirConta(ContaCliente conta) {
-        String selectUsuarioSql = "SELECT id_usuario FROM usuario WHERE cpf = ?";
-        String selectClienteSql = "SELECT id_cliente FROM cliente WHERE id_usuario = ?";
-        String insertContaSql = "INSERT INTO conta (numero_conta, agencia, saldo, tipo_conta, id_cliente) VALUES (?, ?, ?, ?, ?)";
+        String selectUsuarioSql = "SELECT id_usuario FROM tb_usuario WHERE cpf = ?";
+        String selectClienteSql = "SELECT id_cliente FROM tb_cliente WHERE id_usuario = ?";
+        String insertContaSql = "INSERT INTO tb_conta (numero_conta, agencia, saldo, tipo_conta, id_cliente) VALUES (?, ?, ?, ?, ?)";
         String insertContaCorrenteSql = "INSERT INTO conta_corrente (id_conta, taxa_rendimento, limite_conta, data_vencimento) VALUES (?, ?, ?, ?)";
         String insertContaPoupancaSql = "INSERT INTO conta_poupanca (id_conta, taxa_rendimento) VALUES (?, ?)";
 

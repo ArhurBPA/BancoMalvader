@@ -21,8 +21,8 @@ public class BancoDAO {
     // metodo para buscr o id_conta do cliente no banco de dados
     private int buscarIdConta() throws SQLException {
         String query = "SELECT c.id_conta " +
-                "FROM conta c " +
-                "JOIN cliente cl ON c.id_cliente = cl.id_cliente " +
+                "FROM tb_conta c " +
+                "JOIN tb_cliente cl ON c.id_cliente = cl.id_cliente " +
                 "WHERE cl.id_usuario = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, cliente.getId());
@@ -37,7 +37,7 @@ public class BancoDAO {
 
     // metodo para consultar o saldo da conta do cliente
     public double consultarSaldo() throws SQLException {
-        String query = "SELECT c.saldo FROM conta c JOIN cliente cl ON c.id_cliente = cl.id_cliente WHERE cl.id_usuario = ?";
+        String query = "SELECT c.saldo FROM tb_conta c JOIN tb_cliente cl ON c.id_cliente = cl.id_cliente WHERE cl.id_usuario = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, cliente.getId());
             ResultSet rs = stmt.executeQuery();
@@ -53,8 +53,8 @@ public class BancoDAO {
     public void realizarDeposito(double valor) throws SQLException {
         connection.setAutoCommit(false);  // desabilita auto-commit para transacoes manuais
 
-        String updateSaldo = "UPDATE conta c JOIN cliente cl ON c.id_cliente = cl.id_cliente SET c.saldo = c.saldo + ? WHERE cl.id_usuario = ?";
-        String inserirTransacao = "INSERT INTO transacao (tipo_transacao, valor, id_conta) VALUES (?, ?, ?)";
+        String updateSaldo = "UPDATE tb_conta c JOIN cliente cl ON c.id_cliente = cl.id_cliente SET c.saldo = c.saldo + ? WHERE cl.id_usuario = ?";
+        String inserirTransacao = "INSERT INTO tb_transacao (tipo_transacao, valor, id_conta) VALUES (?, ?, ?)";
 
         try (PreparedStatement stmtSaldo = connection.prepareStatement(updateSaldo);
              PreparedStatement stmtTransacao = connection.prepareStatement(inserirTransacao)) {

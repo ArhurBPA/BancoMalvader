@@ -25,41 +25,42 @@ public class UsuarioController {
     }
 
     // metodo para verificar as credenciais fornecidas pelo usuario e, se validas, abre a interface correspondente ao tipo de usuario
-    public void verificarSenha(String tipoUsuario, String email ,String senha, PasswordDialogView passwordDialogView) {
-        if (tipoUsuario.equals("Cliente")) {
+    public boolean verificarSenha(String email, String senha) {
             ClienteDAO clienteDAO = new ClienteDAO();
             Optional<Cliente> clienteLogado = clienteDAO.getUser(email, senha);
 
             if (clienteLogado.isPresent()) {
-                passwordDialogView.dispose();
+//                passwordDialogView.dispose();
                 mainView.dispose();
                 ClienteView clienteView = new ClienteView(clienteLogado.get());
                 clienteView.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 clienteView.setSize(400, 600);
                 clienteView.setLocationRelativeTo(null);
                 clienteView.setVisible(true);
+                return true;
             } else {
                 JOptionPane.showMessageDialog(null, "Senha incorreta ou usuário não encontrado.", "Erro", JOptionPane.ERROR_MESSAGE);
             }
-        } else if (tipoUsuario.equals("Funcionario")) {
-            FuncionarioDAO funcionarioDAO = new FuncionarioDAO();
-            Optional<Cliente> funcionarioLogado = funcionarioDAO.getUser(email, senha);
-
-            if (funcionarioLogado.isPresent()) {
-                passwordDialogView.dispose();
-                mainView.dispose();
-                FuncionarioView funcionarioView = new FuncionarioView(funcionarioLogado.get());
-                funcionarioView.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                funcionarioView.setSize(400, 600);
-                funcionarioView.setLocationRelativeTo(null);
-                funcionarioView.setVisible(true);
-            } else {
-                JOptionPane.showMessageDialog(null, "Senha incorreta ou usuário não encontrado.", "Erro", JOptionPane.ERROR_MESSAGE);
-            }
-        } else {
-            System.out.println("Erro ao identificar usuario.");
-            System.exit(0);
-        }
+//        } else if (tipoUsuario.equals("Funcionario")) {
+//            FuncionarioDAO funcionarioDAO = new FuncionarioDAO();
+//            Optional<Cliente> funcionarioLogado = funcionarioDAO.getUser(email, senha);
+//
+//            if (funcionarioLogado.isPresent()) {
+//                passwordDialogView.dispose();
+//                mainView.dispose();
+//                FuncionarioView funcionarioView = new FuncionarioView(funcionarioLogado.get());
+//                funcionarioView.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//                funcionarioView.setSize(400, 600);
+//                funcionarioView.setLocationRelativeTo(null);
+//                funcionarioView.setVisible(true);
+//            } else {
+//                JOptionPane.showMessageDialog(null, "Senha incorreta ou usuário não encontrado.", "Erro", JOptionPane.ERROR_MESSAGE);
+//            }
+//        } else {
+//            System.out.println("Erro ao identificar usuario.");
+//            System.exit(0);
+//        }
+        return false;
     }
 
     // metodo para retornar a referencia à mainView
