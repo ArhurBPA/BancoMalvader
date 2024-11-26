@@ -1,19 +1,62 @@
-## Getting Started
+# Visão Geral
+O projeto Banco Malvader é uma aplicação de gerenciamento bancário que permite a clientes e funcionários realizar operações bancárias como abertura e encerramento de contas, consultas de dados, geração de relatórios e transações financeiras. A aplicação é desenvolvida em Java utilizando a biblioteca Swing para a interface gráfica e JDBC para a interação com o banco de dados.
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+# Tecnologias Utilizadas
+- Java: Linguagem de programação principal.
+- Swing: Biblioteca para construção da interface gráfica.
+- JDBC: API para conexão com o banco de dados.
+- MySQL: Sistema de gerenciamento de banco de dados.
+- OpenCSV: Biblioteca para exportação de dados em formato CSV.
 
-## Folder Structure
+# Diagramas
+![Diagrama de Sequencia](/diagramas/sequencia.jpeg "Diagrama de Sequencia")
+  
+# Estrutura do Projeto
+A estrutura do projeto é organizada da seguinte forma:
+```
+src/
+│
+├── controllers/          # Controladores da aplicação
+│   ├── BancoController.java
+│   ├── FuncionarioController.java
+│   └── UsuarioController.java
+│
+├── dao/                  # Data Access Objects (DAOs) para interação com o banco de dados
+│   ├── BancoDAO.java
+│   ├── ClienteDAO.java
+│   ├── FuncionarioDAO.java
+│   └── ConnectionFactory.java
+│
+├── models/               # Classes de modelo representando entidades do sistema
+│   ├── Cliente.java
+│   ├── Conta.java
+│   ├── Transacao.java
+│   ├── Usuario.java
+│   └── Endereco.java
+│
+├── utils/                # Utilitários e classes auxiliares
+│   ├── DBUtils.java
+│   ├── CSVExporter.java
+│   └── Relatorio.java
+│
+├── view/                 # Classes de visualização (interface gráfica)
+│   ├── MainView.java
+│   ├── ClienteView.java
+│   ├── FuncionarioView.java
+│   └── CadastroView.java
+│
+└── utils/                # Classe principal para inicialização
+    └── BancoMalvader.java
+```
 
-The workspace contains two folders by default, where:
-
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
-
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
-
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
-
-## Dependency Management
-
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
-https://code-with-me.global.jetbrains.com/7jLy7ti6SxP17R1L6d9P9g#p=IU&fp=450994C6C8ABBF9E8173E85235C1CB83063F5149E8ADA57F812107BC3A121433&newUi=true
+# Funcionalidades
+### Login de Usuário: Clientes e funcionários podem se autenticar na aplicação.
+### Gerenciamento de Contas:
+- Abertura de contas (Corrente e Poupança).
+- Encerramento de contas.
+- Consulta de dados de contas.
+### Transações Financeiras:
+- Realização de depósitos e saques.
+- Geração de extratos de transações.
+- Cadastro de Funcionários: Funcionários podem ser cadastrados com cargos específicos.
+### Geração de Relatórios: Relatórios de transações e dados do usuário podem ser gerados e exportados em formato CSV.
