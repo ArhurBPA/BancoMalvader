@@ -1,0 +1,118 @@
+
+CREATE DATABASE IF NOT EXISTS `banco_malvader`;
+USE `banco_malvader`;
+
+-- Estrutura para tabela `cliente`
+CREATE TABLE `cliente` (
+  `id_cliente` int(11) NOT NULL,
+  `id_usuario` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `cliente` (`id_cliente`, `id_usuario`) VALUES
+(1, 5),
+(2, 6);
+
+-- Estrutura para tabela `conta`
+CREATE TABLE `conta` (
+  `id_conta` int(11) NOT NULL,
+  `numero_conta` varchar(20) NOT NULL,
+  `agencia` varchar(10) DEFAULT NULL,
+  `saldo` decimal(15,2) NOT NULL,
+  `tipo_conta` enum('poupanca','corrente') NOT NULL,
+  `id_cliente` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `conta` (`id_conta`, `numero_conta`, `agencia`, `saldo`, `tipo_conta`, `id_cliente`) VALUES
+(1, '3003-1', '003', 2500.00, 'corrente', 1),
+(2, '4004-2', '004', 4200.75, 'poupanca', 2);
+
+-- Estrutura para tabela `conta_corrente`
+CREATE TABLE `conta_corrente` (
+  `id_conta_corrente` int(11) NOT NULL,
+  `taxa_rendimento` double(5,2) NOT NULL,
+  `limite_conta` varchar(10) NOT NULL,
+  `data_vencimento` date NOT NULL,
+  `id_conta` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `conta_corrente` (`id_conta_corrente`, `taxa_rendimento`, `limite_conta`, `data_vencimento`, `id_conta`) VALUES
+(1, 1.50, '7000', '2025-01-15', 1);
+
+-- Estrutura para tabela `conta_poupanca`
+CREATE TABLE `conta_poupanca` (
+  `id_conta_poupanca` int(11) NOT NULL,
+  `taxa_rendimento` decimal(5,2) DEFAULT NULL,
+  `id_conta` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `conta_poupanca` (`id_conta_poupanca`, `taxa_rendimento`, `id_conta`) VALUES
+(1, 0.75, 2);
+
+-- Estrutura para tabela `endereco`
+CREATE TABLE `endereco` (
+  `id_endereco` int(11) NOT NULL,
+  `cep` varchar(10) DEFAULT NULL,
+  `local` varchar(100) DEFAULT NULL,
+  `numero_casa` int(11) DEFAULT NULL,
+  `bairro` varchar(50) DEFAULT NULL,
+  `cidade` varchar(50) DEFAULT NULL,
+  `estado` varchar(2) DEFAULT NULL,
+  `id_usuario` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `endereco` (`id_endereco`, `cep`, `local`, `numero_casa`, `bairro`, `cidade`, `estado`, `id_usuario`) VALUES
+(1, '72000000', 'Rua C', 150, 'Taguatinga', 'Brasília', 'DF', 5),
+(2, '73000000', 'Rua D', 250, 'Ceilândia', 'Brasília', 'DF', 6);
+
+-- Estrutura para tabela `funcionario`
+CREATE TABLE `funcionario` (
+  `id_funcionario` int(11) NOT NULL,
+  `codigo_funcionario` varchar(50) NOT NULL,
+  `cargo` varchar(50) DEFAULT NULL,
+  `id_usuario` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `funcionario` (`id_funcionario`, `codigo_funcionario`, `cargo`, `id_usuario`) VALUES
+(1, 'F002', 'Analista', 7);
+
+-- Estrutura para tabela `relatorio`
+CREATE TABLE `relatorio` (
+  `id_relatorio` int(11) NOT NULL,
+  `tipo_relatorio` varchar(50) DEFAULT NULL,
+  `data_geracao` timestamp NULL DEFAULT current_timestamp(),
+  `conteudo` text DEFAULT NULL,
+  `id_funcionario` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `relatorio` (`id_relatorio`, `tipo_relatorio`, `data_geracao`, `conteudo`, `id_funcionario`) VALUES
+(1, 'Projeção Anual', '2024-12-01 12:00:00', 'Relatório anual de planejamento.', 1);
+
+-- Estrutura para tabela `transacao`
+CREATE TABLE `transacao` (
+  `id_transacao` int(11) NOT NULL,
+  `tipo_transacao` enum('deposito','saque','transferencia') NOT NULL,
+  `valor` decimal(15,2) NOT NULL,
+  `data_hora` timestamp NULL DEFAULT current_timestamp(),
+  `id_conta` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `transacao` (`id_transacao`, `tipo_transacao`, `valor`, `data_hora`, `id_conta`) VALUES
+(1, 'transferencia', 1500.00, '2024-12-01 14:00:00', 1),
+(2, 'saque', 300.00, '2024-12-01 15:00:00', 2);
+
+-- Estrutura para tabela `usuario`
+CREATE TABLE `usuario` (
+  `id_usuario` int(11) NOT NULL,
+  `nome` varchar(100) NOT NULL,
+  `email` varchar(60) NOT NULL,
+  `cpf` varchar(11) NOT NULL,
+  `data_nascimento` date NOT NULL,
+  `telefone` varchar(15) DEFAULT NULL,
+  `tipo_usuario` enum('funcionario','cliente') NOT NULL,
+  `senha` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `usuario` (`id_usuario`, `nome`, `email`, `cpf`, `data_nascimento`, `telefone`, `tipo_usuario`, `senha`) VALUES
+(5, 'Pedro Henrique', 'pedro@gmail.com', '12345678902', '1993-06-01', '61998765433', 'cliente', 'senha111'),
+(6, 'Luiza Costa', 'luiza@gmail.com', '98765432102', '1987-08-12', '61991234568', 'cliente', 'senha222'),
+(7, 'Lucas Pereira', 'lucas@gmail.com', '19283746502', '1992-04-15', '61993456790', 'funcionario', 'senha333');
