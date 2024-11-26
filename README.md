@@ -9,8 +9,10 @@ O projeto Banco Malvader é uma aplicação de gerenciamento bancário que permi
 - OpenCSV: Biblioteca para exportação de dados em formato CSV.
 
 # Diagramas
+# Diagrama de Sequencia
 ![Diagrama de Sequencia](/diagramas/sequencia.jpeg "Diagrama de Sequencia")
 
+#Diagrama de Classe
 ![DiagramaClasseMalavader](https://github.com/user-attachments/assets/6297a2db-a1d2-4d15-ba0d-8c430f5d2856)
 
   
