@@ -1,6 +1,5 @@
 package view;
-import view.*;
-import controllers.UsuarioController;
+import controller.UsuarioController;
 
 import javax.swing.*;
 

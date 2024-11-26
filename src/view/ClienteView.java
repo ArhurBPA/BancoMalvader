@@ -1,9 +1,8 @@
 package view;
 
-import controllers.BancoController;
-import models.Cliente;
+import controller.BancoController;
+import model.Cliente;
 import javax.swing.*;
-import java.awt.*;
 
 public class ClienteView extends JFrame {
     private final JLabel tituloLabel;

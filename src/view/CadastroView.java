@@ -5,7 +5,7 @@ import java.awt.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import dao.ClienteDAO;
-import models.Endereco;
+import model.Endereco;
 
 public class CadastroView {
     private JFrame telaCadastro;

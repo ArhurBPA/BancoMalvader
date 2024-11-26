@@ -2,10 +2,10 @@ package dao;
 
 import java.sql.*;
 import java.util.Optional;
-import models.Cliente;
+import model.Cliente;
 
-import models.Endereco;
-import utils.DBUtils;
+import model.Endereco;
+import util.DBUtils;
 
 public class ClienteDAO {
 
@@ -28,7 +28,6 @@ public class ClienteDAO {
                         int id = rs.getInt("ID_USUARIO");
                         String nome = rs.getString("NO_USUARIO");
                         String cpf = rs.getString("NR_CPF_USUARIO");
-                        Date dataNascimento = rs.getDate("DT_NASCIMENTO");
                         String telefone = rs.getString("NR_TELEFONE");
                         String tipoUser = rs.getString("TP_USUARIO");
 
@@ -53,7 +52,6 @@ public class ClienteDAO {
             }
         } catch (SQLException e) {
             System.err.println("Erro ao consultar os dados: " + e.getMessage());
-            e.printStackTrace();
             return Optional.empty();
         }
     }
@@ -85,7 +83,6 @@ public class ClienteDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
             throw new RuntimeException("Erro ao inserir cliente na tabela usuario: " + e.getMessage());
         }
     }
@@ -95,8 +92,4 @@ public class ClienteDAO {
         ClienteDAO.sql = sql;
     }
 
-    // metodo para obter a query SQL atual
-    public static String getSql() {
-        return sql;
-    }
 }

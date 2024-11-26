@@ -1,7 +1,7 @@
 package dao;
 
-import models.Cliente;
-import models.Transacao;
+import model.Cliente;
+import model.Transacao;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -20,9 +20,9 @@ public class BancoDAO {
 
     // metodo para buscr o id_conta do cliente no banco de dados
     private int buscarIdConta() throws SQLException {
-        String query = "SELECT c.id_conta " +
+        String query = "SELECT c.ID_CONTA " +
                 "FROM tb_conta c " +
-                "JOIN tb_cliente cl ON c.id_cliente = cl.id_cliente " +
+                "JOIN tb_cliente cl ON c.ID_CLIENTE = cl.ID_CLIENTE " +
                 "WHERE cl.id_usuario = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, cliente.getId());
@@ -85,7 +85,6 @@ public class BancoDAO {
         } catch (SQLException e) {
             connection.rollback();  // reverte a transação em caso de erro
             System.out.println("Erro: " + e.getMessage());
-            e.printStackTrace();
         } finally {
             connection.setAutoCommit(true);  // restaura o auto-commit padrão
         }

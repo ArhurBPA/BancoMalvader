@@ -1,8 +1,8 @@
 package view;
 
 import javax.swing.*;
-import java.awt.*;
-import models.Cliente;
+
+import model.Cliente;
 
 public class WelcomeView {
     private JFrame frame;

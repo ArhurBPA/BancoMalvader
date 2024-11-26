@@ -113,8 +113,5 @@ public class LoginView extends JFrame {
     public JButton getRegisterButton() {
         return registerButton;
     }
-
-    public static void main(String[] args) {
-        new LoginView();
-    }
 }
+

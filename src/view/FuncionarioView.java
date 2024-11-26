@@ -1,9 +1,9 @@
 package view;
 
-import controllers.RelatorioController;
-import controllers.UsuarioController;
+import controller.RelatorioController;
+import controller.UsuarioController;
 import dao.FuncionarioDAO;
-import models.*;
+import model.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -134,7 +134,7 @@ public class FuncionarioView extends JFrame {
             int result = JOptionPane.showConfirmDialog(this, panel, "Abertura de Conta", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
             if (result == JOptionPane.OK_OPTION) {
-                ContaCliente conta;
+                ClienteConta conta;
                 String agencia = agenciaField.getText();
                 String numeroConta = numeroContaField.getText();
                 String nomeCliente = nomeClienteField.getText();
@@ -147,10 +147,10 @@ public class FuncionarioView extends JFrame {
                 if (tipoConta.equals("Corrente")) {
                     double limite = Double.parseDouble(limiteField.getText());
                     String dataVencimento = dataVencimentoField.getText();
-                    conta = new ContaCliente(agencia, numeroConta, nomeCliente, cpf, dataNascimento,
+                    conta = new ClienteConta(agencia, numeroConta, nomeCliente, cpf, dataNascimento,
                             telefone, endereco, senha, tipoConta, limite, dataVencimento);
                 } else {
-                    conta = new ContaCliente(agencia, numeroConta, nomeCliente, cpf, dataNascimento,
+                    conta = new ClienteConta(agencia, numeroConta, nomeCliente, cpf, dataNascimento,
                             telefone, endereco, senha, tipoConta);
                 }
 
@@ -306,7 +306,7 @@ public class FuncionarioView extends JFrame {
             String cpfDoUsuario = JOptionPane.showInputDialog(this, "Digite o CPF do usuário que deseja o relatório:");
 
             FuncionarioDAO dao = new FuncionarioDAO();
-            RelatorioUsuario relatorio = dao.gerarRelatorioDAO(cpfDoUsuario);
+            GerarRelatorio relatorio = dao.gerarRelatorioDAO(cpfDoUsuario);
 
             if (relatorio != null) {
                 RelatorioController controller = new RelatorioController();

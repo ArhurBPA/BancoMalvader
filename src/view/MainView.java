@@ -1,12 +1,10 @@
 package view;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URL;
 
-import controllers.UsuarioController;
+import controller.UsuarioController;
 
 public class MainView extends JFrame{
     private final JLabel tituloLabel;

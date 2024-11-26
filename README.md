@@ -19,7 +19,7 @@ A estrutura do projeto é organizada da seguinte forma:
 ```
 src/
 │
-├── controllers/          # Controladores da aplicação
+├── controller/          # Controladores da aplicação
 │   ├── BancoController.java
 │   ├── FuncionarioController.java
 │   └── UsuarioController.java
@@ -30,14 +30,14 @@ src/
 │   ├── FuncionarioDAO.java
 │   └── ConnectionFactory.java
 │
-├── models/               # Classes de modelo representando entidades do sistema
+├── model/               # Classes de modelo representando entidades do sistema
 │   ├── Cliente.java
 │   ├── Conta.java
 │   ├── Transacao.java
 │   ├── Usuario.java
 │   └── Endereco.java
 │
-├── utils/                # Utilitários e classes auxiliares
+├── util/                # Utilitários e classes auxiliares
 │   ├── DBUtils.java
 │   ├── CSVExporter.java
 │   └── Relatorio.java
@@ -48,7 +48,7 @@ src/
 │   ├── FuncionarioView.java
 │   └── CadastroView.java
 │
-└── utils/                # Classe principal para inicialização
+└── util/                # Classe principal para inicialização
     └── BancoMalvader.java
 ```
 

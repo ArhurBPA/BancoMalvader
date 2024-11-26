@@ -1,69 +1,70 @@
 package dao;
 
 import java.sql.*;
-import java.util.Optional;
 
-import models.*;
+import model.*;
 
 import java.util.UUID;
-
-import utils.DBUtils;
 
 public class FuncionarioDAO {
 
     private static String sql;
 
-    // metodo para obter um usuario (Cliente) do banco de dados baseado no email e senha fornecidos
-    public Optional<Cliente> getUser(String email, String senha) {
-        setSql("SELECT * FROM tb_usuario WHERE cpf = ?");
-
-        try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, email);
-            try (ResultSet rs = ps.executeQuery()) {
-
-                if (rs.next()) {
-                    String senhaQuery = rs.getString("senha");
-
-                    if(senhaQuery.equals(senha)){
-                        int id = rs.getInt("id_usuario");
-                        String nome = rs.getString("nome");
-                        String cpf = rs.getString("cpf");
-                        Date dataNascimento = rs.getDate("data_nascimento");
-                        String telefone = rs.getString("telefone");
-                        String tipoUser = rs.getString("tipo_usuario");
-
-                        if(tipoUser.equals("funcionario")){
-                            System.out.println("ID: " + id + ", Nome: " + nome + ", Email: " + email);
-                            return Optional.of(new Cliente(id, nome, email, cpf, telefone, senhaQuery, true));
-                        }
-                        else{
-                            System.out.println("Nenhum usuario encontrado.");
-                            return Optional.empty();
-                        }
-                    }
-                    else{
-                        System.out.println("Nenhum usuario encontrado.");
-                        return Optional.empty();
-                    }
-                } else {
-                    System.out.println("Nenhum usuario encontrado.");
-                    return Optional.empty();
-                }
-
-            }
-        } catch (SQLException e) {
-            System.err.println("Erro ao consultar os dados: " + e.getMessage());
-            e.printStackTrace();
-            return Optional.empty();
-        }
+    public static void setSql(String sql) {
+        FuncionarioDAO.sql = sql;
     }
 
+    // metodo para obter um usuario (Cliente) do banco de dados baseado no email e senha fornecidos
+//    public Optional<Cliente> getUser(String email, String senha) {
+//        setSql("SELECT * FROM tb_usuario WHERE cpf = ?");
+//
+//        try (Connection conn = ConnectionFactory.getConnection();
+//             PreparedStatement ps = conn.prepareStatement(sql)) {
+//
+//            ps.setString(1, email);
+//            try (ResultSet rs = ps.executeQuery()) {
+//
+//                if (rs.next()) {
+//                    String senhaQuery = rs.getString("senha");
+//
+//                    if(senhaQuery.equals(senha)){
+//                        int id = rs.getInt("id_usuario");
+//                        String nome = rs.getString("nome");
+//                        String cpf = rs.getString("cpf");
+//                        Date dataNascimento = rs.getDate("data_nascimento");
+//                        String telefone = rs.getString("telefone");
+//                        String tipoUser = rs.getString("tipo_usuario");
+//
+//                        if(tipoUser.equals("funcionario")){
+//                            System.out.println("ID: " + id + ", Nome: " + nome + ", Email: " + email);
+//                            return Optional.of(new Cliente(id, nome, email, cpf, telefone, senhaQuery, true));
+//                        }
+//                        else{
+//                            System.out.println("Nenhum usuario encontrado.");
+//                            return Optional.empty();
+//                        }
+//                    }
+//                    else{
+//                        System.out.println("Nenhum usuario encontrado.");
+//                        return Optional.empty();
+//                    }
+//                } else {
+//                    System.out.println("Nenhum usuario encontrado.");
+//                    return Optional.empty();
+//                }
+//
+//            }
+//        } catch (SQLException e) {
+//            System.err.println("Erro ao consultar os dados: " + e.getMessage());
+//            e.printStackTrace();
+//            return Optional.empty();
+//        }
+//    }
+
     // metodo para inserir uma nova conta para um cliente com base nos detalhes fornecidos
-    public String inserirConta(ContaCliente conta) {
-        String selectUsuarioSql = "SELECT id_usuario FROM tb_usuario WHERE cpf = ?";
-        String selectClienteSql = "SELECT id_cliente FROM tb_cliente WHERE id_usuario = ?";
+    public String inserirConta(ClienteConta conta) {
+        String selectUsuarioSql = "SELECT ID_USUARIO FROM tb_usuario WHERE cpf = ?";
+        String selectClienteSql = "SELECT ID_CLIENTE FROM tb_cliente WHERE ID_USUARIO = ?";
         String insertContaSql = "INSERT INTO tb_conta (numero_conta, agencia, saldo, tipo_conta, id_cliente) VALUES (?, ?, ?, ?, ?)";
         String insertContaCorrenteSql = "INSERT INTO conta_corrente (id_conta, taxa_rendimento, limite_conta, data_vencimento) VALUES (?, ?, ?, ?)";
         String insertContaPoupancaSql = "INSERT INTO conta_poupanca (id_conta, taxa_rendimento) VALUES (?, ?)";
@@ -71,7 +72,7 @@ public class FuncionarioDAO {
         try (Connection conn = ConnectionFactory.getConnection()) {
 
             // buscar o id_usuario pelo CPF
-            int idUsuario = -1;
+            int idUsuario;
             try (PreparedStatement stmtUsuario = conn.prepareStatement(selectUsuarioSql)) {
                 stmtUsuario.setString(1, conta.getCpf());
                 try (ResultSet rs = stmtUsuario.executeQuery()) {
@@ -84,7 +85,7 @@ public class FuncionarioDAO {
             }
 
             // buscar o id_cliente usando o id_usuario encontrado
-            int idCliente = -1;
+            int idCliente;
             try (PreparedStatement stmtCliente = conn.prepareStatement(selectClienteSql)) {
                 stmtCliente.setInt(1, idUsuario);
                 try (ResultSet rs = stmtCliente.executeQuery()) {
@@ -97,7 +98,7 @@ public class FuncionarioDAO {
             }
 
             // inserir a conta usando o id_cliente encontrado
-            int idConta = -1;  // Variável para armazenar o id_conta gerado
+            int idConta;  // Variável para armazenar o id_conta gerado
             try (PreparedStatement stmt = conn.prepareStatement(insertContaSql, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setString(1, conta.getNumeroConta());
                 stmt.setString(2, conta.getAgencia());
@@ -141,7 +142,6 @@ public class FuncionarioDAO {
             return "Conta inserida com sucesso!";
 
         } catch (SQLException e) {
-            e.printStackTrace();
             return "Erro ao inserir a conta: " + e.getMessage();
         }
     }
@@ -154,8 +154,8 @@ public class FuncionarioDAO {
         String deleteContaSql = "DELETE FROM conta WHERE id_conta = ?";
 
         try (Connection conn = ConnectionFactory.getConnection()) {
-            int idConta = -1;
-            String tipoConta = null;
+            int idConta;
+            String tipoConta;
 
             // buscar a conta pelo numero da conta
             try (PreparedStatement stmtSelect = conn.prepareStatement(selectContaSql)) {
@@ -193,7 +193,6 @@ public class FuncionarioDAO {
             return "Conta encerrada com sucesso!";
 
         } catch (SQLException e) {
-            e.printStackTrace();
             return "Erro ao encerrar a conta: " + e.getMessage();
         }
     }
@@ -210,7 +209,7 @@ public class FuncionarioDAO {
 
         try (Connection conn = ConnectionFactory.getConnection()) {
             // consultar os dados do usuario
-            int idUsuario = -1;
+            int idUsuario;
             try (PreparedStatement stmtUsuario = conn.prepareStatement(sqlUsuario)) {
                 stmtUsuario.setString(1, cpf);
 
@@ -233,7 +232,7 @@ public class FuncionarioDAO {
             }
 
             // consultar o id_cliente com base no id_usuario
-            int idCliente = -1;
+            int idCliente;
             try (PreparedStatement stmtCliente = conn.prepareStatement(sqlCliente)) {
                 stmtCliente.setInt(1, idUsuario);
 
@@ -265,8 +264,7 @@ public class FuncionarioDAO {
                 }
             }
 
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException _) {
         }
 
         // retorna o objeto com todos os dados
@@ -274,7 +272,7 @@ public class FuncionarioDAO {
     }
 
     // metodo para alterar os dados do usuario com base no CPF fornecido
-    public boolean alterarDadosUsuario(String cpf, String telefone) {
+    public void alterarDadosUsuario(String cpf, String telefone) {
         String sqlUsuario = "UPDATE usuario SET telefone = ? WHERE cpf = ?";
 
         try (Connection conn = ConnectionFactory.getConnection()) {
@@ -286,15 +284,12 @@ public class FuncionarioDAO {
                 int linhasAfetadasUsuario = stmtUsuario.executeUpdate();
                 if (linhasAfetadasUsuario == 0) {
                     System.out.println("Nenhum dado de usuário foi alterado.");
-                    return false;
                 }
             }
 
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException _) {
         }
 
-        return true;
     }
 
     // metodo para alterar o cargo de um funcionario com base no CPF fornecido
@@ -319,7 +314,7 @@ public class FuncionarioDAO {
                 System.out.println("Tipo de usuário alterado para 'funcionario'.");
 
                 // selecionar o id_usuario com base no cpf
-                int idUsuario = -1;
+                int idUsuario;
                 try (PreparedStatement stmtSelecionarIdUsuario = conn.prepareStatement(sqlSelecionarIdUsuario)) {
                     stmtSelecionarIdUsuario.setString(1, cpf);
                     try (ResultSet rs = stmtSelecionarIdUsuario.executeQuery()) {
@@ -373,26 +368,24 @@ public class FuncionarioDAO {
                     }
                 }
 
-            } catch (SQLException e) {
-                e.printStackTrace();
+            } catch (SQLException _) {
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException _) {
         }
     }
 
     // metodo para gerra um relatorio de um usuario com base no CPF fornecido
-    public RelatorioUsuario gerarRelatorioDAO(String cpf) {
+    public GerarRelatorio gerarRelatorioDAO(String cpf) {
         String sqlSelecionarIdUsuario = "SELECT id_usuario FROM usuario WHERE cpf = ?";
         String sqlSelecionarIdCliente = "SELECT id_cliente FROM cliente WHERE id_usuario = ?";
         String sqlSelecionarContas = "SELECT id_conta, numero_conta, agencia, saldo, tipo_conta FROM conta WHERE id_cliente = ?";
         String sqlSelecionarTransacoes = "SELECT id_transacao, id_conta, tipo_transacao, valor, data_hora FROM transacao WHERE id_conta = ?";
 
-        RelatorioUsuario relatorio = new RelatorioUsuario(); // Classe modelo para armazenar os dados do relatório
+        GerarRelatorio relatorio = new GerarRelatorio(); // Classe modelo para armazenar os dados do relatório
 
         try (Connection conn = ConnectionFactory.getConnection()) {
             // 1. Selecionar o id_usuario com base no cpf
-            int idUsuario = -1;
+            int idUsuario;
             try (PreparedStatement stmtUsuario = conn.prepareStatement(sqlSelecionarIdUsuario)) {
                 stmtUsuario.setString(1, cpf);
                 try (ResultSet rsUsuario = stmtUsuario.executeQuery()) {
@@ -405,22 +398,11 @@ public class FuncionarioDAO {
                 }
             }
 
-            // 2. Selecionar o id_cliente com base no id_usuario
-            int idCliente = -1;
-            try (PreparedStatement stmtCliente = conn.prepareStatement(sqlSelecionarIdCliente)) {
-                stmtCliente.setInt(1, idUsuario);
-                try (ResultSet rsCliente = stmtCliente.executeQuery()) {
-                    if (rsCliente.next()) {
-                        idCliente = rsCliente.getInt("id_cliente");
-                    } else {
-                        System.out.println("Cliente não encontrado.");
-                        return null;
-                    }
-                }
-            }
+
 
             // 3. Selecionar todas as contas do cliente
             try (PreparedStatement stmtContas = conn.prepareStatement(sqlSelecionarContas)) {
+                int idCliente = 0;
                 stmtContas.setInt(1, idCliente);
                 try (ResultSet rsContas = stmtContas.executeQuery()) {
                     while (rsContas.next()) {
@@ -454,8 +436,7 @@ public class FuncionarioDAO {
                 }
             }
 
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException _) {
         }
 
         // Retornar o relatório completo
@@ -464,9 +445,7 @@ public class FuncionarioDAO {
 
 
     // metodo para definir a query SQL a ser executada
-    public static void setSql(String sql) {
-        FuncionarioDAO.sql = sql;
-    }
+
 
     // metodo para obter a query SQL atual
     public static String getSql() {
